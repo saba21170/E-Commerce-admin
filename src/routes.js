@@ -24,6 +24,8 @@ import Maps from "views/Maps.js";
 import Notifications from "views/Notifications.js";
 import Upgrade from "views/Upgrade.js";
 import Login from "./components/Login/login";
+import Product from "./components/Products/productList";
+import Category from "./components/Categories/categoriesList"
 
 const dashboardRoutes = [
   {
@@ -59,6 +61,20 @@ const dashboardRoutes = [
     name: "Table List",
     icon: "nc-icon nc-notes",
     component: TableList,
+    layout: "/admin"
+  },
+  {
+    path: "/category",
+    name: "Categories",
+    icon: "nc-icon nc-notes",
+    component: Category,
+    layout: "/admin"
+  },
+  {
+    path: "/product",
+    name: "Products",
+    icon: "nc-icon nc-notes",
+    component: Product,
     layout: "/admin"
   },
   {
