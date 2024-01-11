@@ -1,4 +1,5 @@
 import React from "react";
+import CreateButton from "./createModel"
 
 // react-bootstrap components
 import {
@@ -21,7 +22,10 @@ function TableList() {
           <Col md="12">
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
-                <Card.Title as="h4">Categories List</Card.Title>
+              <Card.Title as="h4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  Category List  
+                <CreateButton/>
+                </Card.Title>
                
               </Card.Header>
               <Card.Body className="table-full-width table-responsive px-0">
@@ -37,11 +41,11 @@ function TableList() {
                   </thead>
                   <tbody>
                     <tr>
-                      <td>1</td>
-                      <td>Dakota Rice</td>
-                      <td>$36,738</td>
-                      <td>Niger</td>
-                      <td>Oud-Turnhout</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
                     </tr>
                    
                   </tbody>
