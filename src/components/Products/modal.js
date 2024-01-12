@@ -7,6 +7,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { validateForm } from "./validation";
+import axios from "axios";
 
 function CreateButton() {
   const [show, setShow] = useState(false);
@@ -19,7 +20,7 @@ function CreateButton() {
     featured: "",
     category: "",
     price: "",
-    image: "",
+    images: "",
     icon: "",
   });
 
@@ -35,43 +36,73 @@ function CreateButton() {
       title: "",
       description: "",
       featured: false,
-      category: "",
+
       price: "",
-      image: "",
+      images: "",
       icon: "",
     });
 
     setImagePreview("");
 
-     // Clear all validation errors
+    // Clear all validation errors
     setValidationErrors({});
   };
 
-  const options = [
-    { value: "category1", label: "Category 1" },
-    { value: "category2", label: "Category 2" },
-    { value: "category3", label: "Category 3" },
-    // Add more options as needed
-  ];
+  // const options = [
+  //   { value: "category1", label: "Category 1" },
+  //   { value: "category2", label: "Category 2" },
+  //   { value: "category3", label: "Category 3" },
+  //   // Add more options as needed
+  // ];
 
-  const handleCategoryChange = (selectedOption) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      category: selectedOption ? selectedOption.value : "",
-    }));
-    // Clear validation error for the category field
-    setValidationErrors((prevErrors) => ({
-      ...prevErrors,
-      category: undefined,
-    }));
-  };
+  // const handleCategoryChange = (selectedOption) => {
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     category: selectedOption ? selectedOption.value : "",
+  //   }));
+  //   // Clear validation error for the category field
+  //   setValidationErrors((prevErrors) => ({
+  //     ...prevErrors,
+  //     category: undefined,
+  //   }));
+  // };
 
   //Function for storing file
   const handleFileUpload = (e) => {
     const file = e.target.files && e.target.files[0];
+
+    // Declare the errors variable
+    let errors = {};
+
+    // Check if a file is selected
+    if (file) {
+      const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+
+      // Check if the selected file has a valid extension
+      if (!allowedExtensions.includes(fileExtension)) {
+        setValidationErrors((prevErrors) => ({
+          ...prevErrors,
+          images: "Only JPG, JPEG, PNG, and SVG formats are allowed",
+        }));
+        return; // Exit the function early if the extension is not allowed
+      }
+      if (!formData.images) {
+        errors.images = "Image is required";
+      } else {
+        const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
+        const fileExtension = formData.images.name
+          .split(".")
+          .pop()
+          .toLowerCase();
+        if (!allowedExtensions.includes(fileExtension)) {
+          errors.images = "Only JPG, JPEG, PNG, and SVG formats are allowed";
+        }
+      }
+    }
     setFormData((prevData) => ({
       ...prevData,
-      image: file,
+      images: file,
       icon: URL.createObjectURL(file),
     }));
 
@@ -81,7 +112,7 @@ function CreateButton() {
     // Clear validation error for the image field
     setValidationErrors((prevErrors) => ({
       ...prevErrors,
-      image: undefined,
+      images: undefined,
     }));
   };
 
@@ -113,15 +144,42 @@ function CreateButton() {
   };
 
   // Function to handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validateForm(formData);
     setValidationErrors(errors);
 
     if (Object.keys(errors).length === 0) {
-      console.log(formData, "formData");
-      resetForm();
-      handleClose();
+      try {
+        // Set a loading state if needed
+        // setLoading(true);
+
+        await createProduct(); // Make the API call
+
+        // Reset loading state if needed
+        // setLoading(false);
+
+        resetForm();
+        handleClose();
+      } catch (error) {
+        // Log the error message or display it to the user
+        console.error("Error creating product:", error.message);
+      }
+    }
+  };
+
+  // Function for creating products
+  const createProduct = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/products/add",
+        formData
+      );
+      console.log(response.data); // Log the API response
+    } catch (error) {
+      // Log the error message or display it to the user
+      console.error("Error creating product:", error.message);
+      throw error; // Re-throw the error to be caught in the handleSubmit function
     }
   };
 
@@ -183,7 +241,7 @@ function CreateButton() {
               )}
             </Form.Group>
 
-            <Form.Group controlId="formCategory">
+            {/* <Form.Group controlId="formCategory">
               <Form.Label>Category</Form.Label>
               <Select
                 value={options.find(
@@ -197,7 +255,7 @@ function CreateButton() {
                   {validationErrors.category}
                 </div>
               )}
-            </Form.Group>
+            </Form.Group> */}
             <Form.Group controlId="formId">
               <Form.Label>Price</Form.Label>
               <Form.Control
@@ -227,9 +285,9 @@ function CreateButton() {
                   <img class="image" src={imagePreview} alt="Image Preview" />
                 </div>
               )}
-              {validationErrors.image && (
+              {validationErrors.images && (
                 <div style={{ color: "red", marginTop: "5px" }}>
-                  {validationErrors.image}
+                  {validationErrors.images}
                 </div>
               )}
             </Form.Group>

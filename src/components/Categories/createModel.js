@@ -20,7 +20,7 @@ function CreateButton() {
 
   // New state for image preview
   const [imagePreview, setImagePreview] = useState("");
-
+ 
   // Reset function to clear all form fields
   const resetForm = () => {
     setFormData({
@@ -36,11 +36,11 @@ function CreateButton() {
 
     setImagePreview("");
   };
-
+   
   //Function for storing file
   const handleFileUpload = (e) => {
     const file = e.target.files && e.target.files[0];
-    setFormData((prevData) => ({
+    setFormData((prevData) => ({    
       ...prevData,
       image: file,
       icon: URL.createObjectURL(file),

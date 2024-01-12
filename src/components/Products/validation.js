@@ -21,14 +21,9 @@ export const validateForm = (formData) => {
     errors.price = "Price must be a valid positive number";
   }
    // Validate the image field
-   if (!formData.image) {
-    errors.image = "Image is required";
-  } else {
-    const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
-    const fileExtension = formData.image.name.split(".").pop().toLowerCase();
-    if (!allowedExtensions.includes(fileExtension)) {
-      errors.image = "Only JPG, JPEG, PNG, and SVG formats are allowed";
-    }
+  // Validate the image field
+  if (!formData.images) {
+    errors.images = "Image is required";
   }
 
   return errors;
