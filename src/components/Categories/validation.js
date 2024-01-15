@@ -6,7 +6,7 @@ export const validateForm = (formData) => {
 
   // Validate each form field here
   if (!validator.isLength(formData.name, { min: 1 })) {
-    errors.title = "Name is required";
+    errors.name = "Name is required";
   }
 
   if (!validator.isLength(formData.description, { min: 1 })) {

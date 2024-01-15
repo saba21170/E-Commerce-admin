@@ -10,6 +10,7 @@ import { validateForm } from "./validation";
 import axios from "axios";
 
 function CreateButton() {
+  console.log("Rendering CreateButton");
   const [show, setShow] = useState(false);
 
   // State for storing input values
@@ -151,13 +152,9 @@ function CreateButton() {
 
     if (Object.keys(errors).length === 0) {
       try {
-        // Set a loading state if needed
-        // setLoading(true);
+        
 
         await createProduct(); // Make the API call
-
-        // Reset loading state if needed
-        // setLoading(false);
 
         resetForm();
         handleClose();
@@ -175,7 +172,15 @@ function CreateButton() {
         "http://localhost:3001/products/add",
         formData
       );
+      console.log("Rendering createProduct");
       console.log(response.data); // Log the API response
+  
+      // Check if the response indicates success
+      if (response.data.message === "SUCCESS") {
+        // Add any additional logic if needed
+      } else {
+        console.error("Failed to create product:", response.data.description);
+      }
     } catch (error) {
       // Log the error message or display it to the user
       console.error("Error creating product:", error.message);
@@ -282,7 +287,7 @@ function CreateButton() {
               />
               {imagePreview && (
                 <div style={{ marginTop: "10px" }}>
-                  <img class="image" src={imagePreview} alt="Image Preview" />
+                  <img className="image" src={imagePreview} alt="Image Preview" />
                 </div>
               )}
               {validationErrors.images && (

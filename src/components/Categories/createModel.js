@@ -1,64 +1,106 @@
 import React, { useState } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
-import Select from "react-select";
 import "./categories.css";
+import validator from "validator";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { validateForm } from "./validation";
+import axios from "axios";
 
 function CreateButton() {
+  console.log("Rendering CreateButton");
   const [show, setShow] = useState(false);
 
   // State for storing input values
   const [formData, setFormData] = useState({
-    id: "",
     name: "",
     description: "",
-    status:"",
-    image: "",
+    status: "active",
+    images: "",
     icon: "",
   });
 
+  const [validationErrors, setValidationErrors] = useState({});
+
   // New state for image preview
   const [imagePreview, setImagePreview] = useState("");
- 
+
   // Reset function to clear all form fields
   const resetForm = () => {
     setFormData({
       id: "",
       name: "",
       description: "",
-      status: false,
-      category: "",
-      price: "",
-      image: "",
+      status: formData.status,
+      images: "",
       icon: "",
     });
 
     setImagePreview("");
-  };
-   
-  //Function for storing file
-  const handleFileUpload = (e) => {
-    const file = e.target.files && e.target.files[0];
-    setFormData((prevData) => ({    
-      ...prevData,
-      image: file,
-      icon: URL.createObjectURL(file),
-    }));
 
-    //setImagePreview
-    setImagePreview(URL.createObjectURL(file));
+    // Clear all validation errors
+    setValidationErrors({});
   };
 
+  // Function for storing file
+const handleFileUpload = (e) => {
+  const files = e.target.files;
+
+  // Declare the errors variable
+  let errors = {};
+
+  // Check if files are selected
+  if (files && files.length > 0) {
+    const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
+
+    // Check each selected file
+    const isValidFiles = Array.from(files).every((file) => {
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+
+      // Check if the file has a valid extension
+      return allowedExtensions.includes(fileExtension);
+    });
+
+    if (!isValidFiles) {
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        images: "Only JPG, JPEG, PNG, and SVG formats are allowed",
+      }));
+      return; // Exit the function early if any file has an invalid extension
+    }
+  }
+
+  setFormData((prevData) => ({
+    ...prevData,
+    images: files, // Send the array of selected files
+    icon: files ? URL.createObjectURL(files[0]) : "", // Update icon based on the first file presence
+  }));
+
+  // setImagePreview
+  setImagePreview(files ? URL.createObjectURL(files[0]) : "");
+
+  // Clear validation error for the image field
+  setValidationErrors((prevErrors) => ({
+    ...prevErrors,
+    images: undefined,
+  }));  
+};
   // Function to handle changes in input fields
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     // Handle checkbox separately
     const newValue = type === "checkbox" ? checked : value;
-
+ 
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
+    }));
+
+    // Clear validation error for the corresponding field
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: undefined,
     }));
   };
 
@@ -69,13 +111,48 @@ function CreateButton() {
   const handleClose = () => {
     resetForm();
     setShow(false);
-  }
+  };
 
   // Function to handle form submission
-  const handleSubmit = () => {
-    resetForm(); 
-    console.log(formData, "formData");
-     handleClose();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const errors = validateForm(formData);
+    setValidationErrors(errors);
+
+    if (Object.keys(errors).length === 0) {
+      try {
+        await createProduct(); // Make the API call
+
+        resetForm();
+        handleClose();
+      } catch (error) {
+        // Log the error message 
+        console.error("Error creating product:", error.message);
+      }
+    }
+  };
+
+  // Function for creating products
+  const createProduct = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/categories/",
+        formData
+      );
+      console.log("Rendering createProduct");
+      console.log(response.data); // Log the API response
+
+      // Check if the response indicates success
+      if (response.data.message === "SUCCESS") {
+        // Add any additional logic if needed
+      } else {
+        console.error("Failed to create product:", response.data.description);
+      }
+    } catch (error) {
+      // Log the error message or display it to the user
+      console.error("Error creating product:", error.message);
+      throw error; // Re-throw the error to be caught in the handleSubmit function
+    }
   };
 
   return (
@@ -84,10 +161,14 @@ function CreateButton() {
         Create
       </Button>
 
-      <Modal show={show} onHide={handleClose}  backdrop="static"
-        keyboard={false}>
-        <Modal.Header closeButton >
-          <Modal.Title>Add Product</Modal.Title>
+      <Modal
+        show={show}
+        onHide={handleClose}
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Add Category</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -101,6 +182,11 @@ function CreateButton() {
                 value={formData.name}
                 onChange={handleInputChange}
               />
+              {validationErrors.name && (
+                <div style={{ color: "red", marginTop: "5px" }}>
+                  {validationErrors.name}
+                </div>
+              )}
             </Form.Group>
             <Form.Group controlId="formId">
               <Form.Label>Description</Form.Label>
@@ -113,31 +199,44 @@ function CreateButton() {
                     ...prevData,
                     description: newData,
                   }));
+                  // Clear validation error for the description field
+                  setValidationErrors((prevErrors) => ({
+                    ...prevErrors,
+                    description: undefined,
+                  }));
                 }}
               />
+              {validationErrors.description && (
+                <div style={{ color: "red", marginTop: "5px" }}>
+                  {validationErrors.description}
+                </div>
+              )}
             </Form.Group>
-            <Form.Group controlId="formFeatured">
+            <Form.Group controlId="formStatus">
               <Form.Label>Status</Form.Label>
               <div>
                 <Form.Check
                   type="radio"
-                  name="featured"
-                  id="activeRadio"
-                  value="active"
                   label="Active"
-                  checked={formData.featured === "active"}
+                  name="status"
+                  value="active"
+                  checked={formData.status === "active"}
                   onChange={handleInputChange}
                 />
                 <Form.Check
                   type="radio"
-                  name="featured"
-                  id="inactiveRadio"
-                  value="inactive"
                   label="Inactive"
-                  checked={formData.featured === "inactive"}
+                  name="status"
+                  value="inactive"
+                  checked={formData.status === "inactive"}
                   onChange={handleInputChange}
                 />
               </div>
+              {validationErrors.status && (
+                <div style={{ color: "red", marginTop: "5px" }}>
+                  {validationErrors.status}
+                </div>
+              )}
             </Form.Group>
 
             <Form.Group controlId="formId">
@@ -145,12 +244,21 @@ function CreateButton() {
               <Form.Control
                 type="file"
                 placeholder="Enter Title"
-                name="iamge"
+                name="iamges"
                 onChange={handleFileUpload}
               />
               {imagePreview && (
                 <div style={{ marginTop: "10px" }}>
-                  <img class="image" src={imagePreview} alt="Image Preview" />
+                  <img
+                    className="image"
+                    src={imagePreview}
+                    alt="Image Preview"
+                  />
+                </div>
+              )}
+              {validationErrors.images && (
+                <div style={{ color: "red", marginTop: "5px" }}>
+                  {validationErrors.images}
                 </div>
               )}
             </Form.Group>
