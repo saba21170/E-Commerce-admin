@@ -47,3 +47,7 @@
 .checkbox-group  {
     margin-right: 0.5rem; /* Adjust the margin as needed */
 }
+.edit-icon {
+  color: green; /* Set the color to green */
+  font-size: 1rem; /* Adjust the font size as needed */
+}

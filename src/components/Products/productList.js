@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Pagination } from "react-bootstrap";
 import Modal from "react-bootstrap/Modal";
 import CreateButton from "./modal";
+import EditButton from "./EditButton";
+import DeleteButton from "./DeleteButton";
 
 // react-bootstrap components
 import {
@@ -43,6 +45,57 @@ function TableList() {
     fetchProducts();
   }, [currentPage]);
 
+  const handleEdit = async(productId, updatedData) => {
+    try {
+      // Make the API call to update the product
+      const response = await axios.patch(
+        `http://localhost:3001/products/update/${productId}`,
+        updatedData
+      );
+  
+      // Check if the update was successful
+      if (response.data.message === "SUCCESS") {
+        console.log("Product updated successfully!");
+         // Fetch the updated product list or update the state as needed
+      const updatedProducts = await fetchUpdatedProducts();
+      setProducts(updatedProducts);
+    } else {
+      console.error("Failed to update product:", response.data.description);
+
+      } 
+    } catch (error) {
+      console.error("Error updating product:", error.message);
+    }
+  };
+
+  const fetchUpdatedProducts = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/products/getAllProducts");
+      
+      if (response.data.message === "SUCCESS") {
+        return response.data.data;
+      } else {
+        console.error("Failed to fetch updated products:", response.data.description);
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching updated products:", error.message);
+      return [];
+    }
+  };
+  const handleDelete = async (productId) => {
+    try {
+      const response = await axios.delete(`http://localhost:3001/products/delete/${productId}`);
+      if (response.data.message === "SUCCESS") {
+        setProducts(products.filter(product => product._id !== productId));
+      } else {
+        console.error("Failed to delete product:", response.data.description);
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error.message);
+    }
+  };
+
   // const handlePageChange = (newPage) => {
   //   setCurrentPage(newPage);
   // };
@@ -78,6 +131,8 @@ function TableList() {
                       <th className="border-0">Category</th>
                       <th className="border-0">Price</th>
                       <th className="border-0">Image</th>
+                      <th className="border-0">Edit</th>
+                      <th className="border-0">Delete</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -98,7 +153,19 @@ function TableList() {
                             alt={`Product ${product._id} Image`}
                             style={{ width: "50px", height: "50px" }}
                           />
+                           
+                 
                           
+                        </td>
+                        <td>
+                        
+                            
+                            <EditButton productId={product._id} onEdit={handleEdit} />{" "}
+                            
+                          
+                        </td>
+                        <td>
+                        <DeleteButton productId={product._id} onDelete={handleDelete} />
                         </td>
                         
                       </tr>
