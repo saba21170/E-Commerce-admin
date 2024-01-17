@@ -22,7 +22,7 @@ function CreateButton() {
     category: "",
     price: "",
     images: "",
-    icon: "",
+    
   });
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -40,7 +40,7 @@ function CreateButton() {
 
       price: "",
       images: "",
-      icon: "",
+    
     });
 
     setImagePreview("");

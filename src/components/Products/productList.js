@@ -85,7 +85,7 @@ function TableList() {
   };
   const handleDelete = async (productId) => {
     try {
-      const response = await axios.delete(`http://localhost:3001/products/delete/${productId}`);
+      const response = await axios.patch(`http://localhost:3001/products/delete/${productId}`);
       if (response.data.message === "SUCCESS") {
         setProducts(products.filter(product => product._id !== productId));
       } else {
@@ -144,7 +144,7 @@ function TableList() {
                         <td>{product.title}</td>
                         <td>{product.description}</td>
                         <td>{product.featured ? "Yes" : "No"}</td>
-                        <td>{product.id}</td>
+                        <td>{product.category}</td>
                         <td>{product.price}</td>
                         <td>
                           <img
