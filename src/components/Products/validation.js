@@ -1,7 +1,7 @@
 import validator from 'validator';
 
 // Function to validate the form
-export const validateForm = (formData) => {
+export const validateForm = (formData,selectedCategory) => {
   const errors = {};
 
   // Validate each form field here
@@ -13,7 +13,7 @@ export const validateForm = (formData) => {
     errors.description = "Description is required";
   }
 
-  if (!formData.category) {
+  if (!selectedCategory) {
     errors.category = "Category is required";
   }
 
