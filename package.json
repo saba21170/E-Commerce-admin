@@ -11,6 +11,7 @@
     "ckeditor5": "^40.2.0",
     "gulp": "4.0.2",
     "gulp-append-prepend": "1.0.9",
+    "rc-pagination": "^4.0.4",
     "react": ">=16.8.0",
     "react-bootstrap": "^2.9.2",
     "react-chartist": "0.14.4",

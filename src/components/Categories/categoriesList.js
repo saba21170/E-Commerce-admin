@@ -1,32 +1,45 @@
 import React, { useEffect, useState } from "react";
 import CreateButton from "./createCategory";
 import { useSelector, useDispatch } from "react-redux";
-import {getAllCategory} from "./category.action";
-
+import { getAllCategory } from "./category.action";
+import { ENV } from "../../config/config";
+import Pagination from "rc-pagination";
+import "rc-pagination/assets/index.css";
 // react-bootstrap components
-import {
-  Badge,
-  Button,
-  Card,
-  Navbar,
-  Nav,
-  Table,
-  Container,
-  Row,
-  Col,
-} from "react-bootstrap";
+import { Card, Table, Container, Row, Col, Modal } from "react-bootstrap";
 
 function CategoriesList() {
+
+  const limit = 10
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  //console.log(selectedImage ,"hjdfjfhjdhfjhdjfh")
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getAllCategory());
+    dispatch(getAllCategory(currentPage));
   }, []);
 
-  const [categoriesList, setCategoriesList] =useState([]);
-  const {list} = useSelector((state) => state.category);
+  const { list } = useSelector((state) => state.category);
+  //console.log(list,"list");
 
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+    //console.log(image, "jhsdskjdksjdsk")
+  };
+  //console.log(selectedImage)
+  const handleCloseModal = () => {
+    setSelectedImage(null);
+  };
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  useEffect(() =>{
+    dispatch(getAllCategory(currentPage))
+  },[currentPage])
 
 
   return (
@@ -60,23 +73,58 @@ function CategoriesList() {
                     </tr>
                   </thead>
                   <tbody>
-                    {Array.isArray(categoriesList) &&
-                    list?.data.map((category, index)=> (
-                      <tr key={category._id}>
-                      <td>{index + 1}</td>
-                      <td>{category.name}</td>
-                      <td>{category.description}</td>
-                      <td>{}</td>
-                      <td>{}</td>
-                    </tr>
-                    ))}
+                    {list?.data.map(
+                      (category, index) => (
+                        console.log(category, "dsdsjdjjsdjsdjs"),
+                        (
+                          <tr key={category._id}>
+                            <td>{((currentPage - 1) * limit + (index +1 ) )}</td>
+                            <td>{category.name}</td>
+                            <td>{category.description}</td>
+                            <td>{category.status}</td>
+                            <td className="image-cell">
+                              <img
+                                src={`http://localhost:3002/static/${category.images[0]}`}
+                                style={{ cursor: "pointer", maxWidth: "50px" }}
+                                className="image-preview"
+                                onClick={() =>
+                                  handleImageClick(category.images[0])
+                                }
+                              />
+                            </td>
+                          </tr>
+                        )
+                      )
+                    )}
+                    
                   </tbody>
                 </Table>
+                
+                <Pagination
+                  onChange={handlePageChange}
+                  current={currentPage}
+                  total={list?.totalPages}
+                />
               </Card.Body>
             </Card>
           </Col>
         </Row>
       </Container>
+
+      <Modal show={!!selectedImage} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Image Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedImage && (
+            <img
+              src={`http://localhost:3002/static/${selectedImage}`}
+              alt="Preview"
+              style={{ width: "100%" }}
+            />
+          )}
+        </Modal.Body>
+      </Modal>
     </>
   );
 }
