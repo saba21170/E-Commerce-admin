@@ -1,174 +1,101 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
 import "./categories.css";
-import validator from "validator";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { validateForm } from "./validation";
-import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { createCategory } from "../Categories/category.action";
 
-function CreateButton() {
-  console.log("Rendering CreateButton");
-  const [show, setShow] = useState(false);
+function CreateButton({ showModal,setShowModal,modelType }) {
 
   // State for storing input values
-  const [formData, setFormData] = useState({
+  const [modalData, setModalData] = useState({
     name: "",
     description: "",
-    status: "active",
-    images: "",
-    icon: "",
+    status: "",
   });
 
-  const [validationErrors, setValidationErrors] = useState({});
+  const dispatch = useDispatch();
 
   // New state for image preview
-  const [imagePreview, setImagePreview] = useState("");
+  // const [imagePreview, setImagePreview] = useState("");
 
   // Reset function to clear all form fields
   const resetForm = () => {
-    setFormData({
-      id: "",
+    setModalData({
       name: "",
       description: "",
-      status: formData.status,
-      images: "",
-      icon: "",
+      status: modalData.status,
     });
 
-    setImagePreview("");
-
-    // Clear all validation errors
-    setValidationErrors({});
+    // setImagePreview("");
   };
 
   // Function for storing file
-const handleFileUpload = (e) => {
-  const files = e.target.files;
+  // const handleFileUpload = (e) => {
+  //   const files = e.target.files;
 
-  // Declare the errors variable
-  let errors = {};
-
-  // Check if files are selected
-  if (files && files.length > 0) {
-    const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
-
-    // Check each selected file
-    const isValidFiles = Array.from(files).every((file) => {
-      const fileExtension = file.name.split(".").pop().toLowerCase();
-
-      // Check if the file has a valid extension
-      return allowedExtensions.includes(fileExtension);
-    });
-
-    if (!isValidFiles) {
-      setValidationErrors((prevErrors) => ({
-        ...prevErrors,
-        images: "Only JPG, JPEG, PNG, and SVG formats are allowed",
-      }));
-      return; // Exit the function early if any file has an invalid extension
-    }
-  }
-
-  setFormData((prevData) => ({
-    ...prevData,
-    images: files, // Send the array of selected files
-    icon: files ? URL.createObjectURL(files[0]) : "", // Update icon based on the first file presence
-  }));
+  //   setModalData((prevData) => ({
+  //     ...prevData,
+  //     images: files, // Send the array of selected files
+  //     icon: files ? URL.createObjectURL(files[0]) : "", // Update icon based on the first file presence
+  //   }));
 
   // setImagePreview
-  setImagePreview(files ? URL.createObjectURL(files[0]) : "");
+  // setImagePreview(files ? URL.createObjectURL(files[0]) : "");
 
   // Clear validation error for the image field
-  setValidationErrors((prevErrors) => ({
-    ...prevErrors,
-    images: undefined,
-  }));  
-};
+  //   setValidationErrors((prevErrors) => ({
+  //     ...prevErrors,
+  //     images: undefined,
+  //   }));
+  // };
   // Function to handle changes in input fields
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    // Handle checkbox separately
-    const newValue = type === "checkbox" ? checked : value;
- 
-    setFormData((prevData) => ({
-      ...prevData,
+    const { name, value } = e.target;
+    setModalData((prevmodalData) => ({
+      ...prevmodalData,
       [name]: value,
     }));
-
-    // Clear validation error for the corresponding field
-    setValidationErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: undefined,
-    }));
   };
-
+//console.log(modalData)
   // Function to handle modal show
-  const handleShow = () => setShow(true);
+  // const handleShow = () => setShow(true);
 
-  // Function to handle modal close
+  // // Function to handle modal close
   const handleClose = () => {
     resetForm();
-    setShow(false);
+    setShowModal(false);
   };
 
   // Function to handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errors = validateForm(formData);
-    setValidationErrors(errors);
+  const handleSubmit = async () => {
+    const newData = {
+      name:modalData.name,
+      description:modalData.description,
+      status:modalData.status
+    };
+    console.log(newData);
 
-    if (Object.keys(errors).length === 0) {
-      try {
-        await createProduct(); // Make the API call
 
-        resetForm();
-        handleClose();
-      } catch (error) {
-        // Log the error message 
-        console.error("Error creating product:", error.message);
-      }
-    }
-  };
-
-  // Function for creating products
-  const createProduct = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:3001/categories/",
-        formData
-      );
-      console.log("Rendering createProduct");
-      console.log(response.data); // Log the API response
-
-      // Check if the response indicates success
-      if (response.data.message === "SUCCESS") {
-        // Add any additional logic if needed
-      } else {
-        console.error("Failed to create product:", response.data.description);
-      }
-    } catch (error) {
-      // Log the error message or display it to the user
-      console.error("Error creating product:", error.message);
-      throw error; // Re-throw the error to be caught in the handleSubmit function
-    }
+    dispatch(createCategory(newData));
   };
 
   return (
     <>
-      <Button variant="primary" onClick={handleShow}>
-        Create
-      </Button>
 
       <Modal
-        show={show}
+        show={showModal}
         onHide={handleClose}
         backdrop="static"
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Add Category</Modal.Title>
+          <Modal.Title>
+            {modelType === 1 ? "Create" : modelType === 2 ? "View" : "Edit" }
+            
+             Category</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -179,38 +106,24 @@ const handleFileUpload = (e) => {
                 type="text"
                 placeholder="Enter Name"
                 name="name"
-                value={formData.name}
+                disabled = {modelType === 2}
+                value={modalData.name}
                 onChange={handleInputChange}
               />
-              {validationErrors.name && (
-                <div style={{ color: "red", marginTop: "5px" }}>
-                  {validationErrors.name}
-                </div>
-              )}
             </Form.Group>
             <Form.Group controlId="formId">
               <Form.Label>Description</Form.Label>
               <CKEditor
                 editor={ClassicEditor}
-                data={formData.description} // Pass the initial data from the state
+                data={modalData.description} // Pass the initial data from the state
                 onChange={(event, editor) => {
                   const newData = editor.getData();
-                  setFormData((prevData) => ({
+                  setModalData((prevData) => ({
                     ...prevData,
                     description: newData,
                   }));
-                  // Clear validation error for the description field
-                  setValidationErrors((prevErrors) => ({
-                    ...prevErrors,
-                    description: undefined,
-                  }));
                 }}
               />
-              {validationErrors.description && (
-                <div style={{ color: "red", marginTop: "5px" }}>
-                  {validationErrors.description}
-                </div>
-              )}
             </Form.Group>
             <Form.Group controlId="formStatus">
               <Form.Label>Status</Form.Label>
@@ -220,7 +133,7 @@ const handleFileUpload = (e) => {
                   label="Active"
                   name="status"
                   value="active"
-                  checked={formData.status === "active"}
+                  checked={modalData.status === "active"}
                   onChange={handleInputChange}
                 />
                 <Form.Check
@@ -228,22 +141,16 @@ const handleFileUpload = (e) => {
                   label="Inactive"
                   name="status"
                   value="inactive"
-                  checked={formData.status === "inactive"}
+                  checked={modalData.status === "inactive"}
                   onChange={handleInputChange}
                 />
               </div>
-              {validationErrors.status && (
-                <div style={{ color: "red", marginTop: "5px" }}>
-                  {validationErrors.status}
-                </div>
-              )}
             </Form.Group>
-
+            {/* 
             <Form.Group controlId="formId">
               <Form.Label>Image</Form.Label>
               <Form.Control
                 type="file"
-                placeholder="Enter Title"
                 name="iamges"
                 onChange={handleFileUpload}
               />
@@ -256,12 +163,7 @@ const handleFileUpload = (e) => {
                   />
                 </div>
               )}
-              {validationErrors.images && (
-                <div style={{ color: "red", marginTop: "5px" }}>
-                  {validationErrors.images}
-                </div>
-              )}
-            </Form.Group>
+            </Form.Group> */}
           </Form>
         </Modal.Body>
 
@@ -281,4 +183,5 @@ const handleFileUpload = (e) => {
     </>
   );
 }
+
 export default CreateButton;

@@ -30,7 +30,7 @@ function TableList() {
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/products/getAllProducts?page=${currentPage}`
+          `http://localhost:3002/products/getAllProducts?page=${currentPage}`
         );
         if (response.data.message === "SUCCESS") {
           //console.log(response.data);
@@ -50,7 +50,7 @@ function TableList() {
     try {
       // Make the API call to update the product
       const response = await axios.patch(
-        `http://localhost:3001/products/update/${productId}`,
+        `http://localhost:3002/products/update/${productId}`,
         updatedData
       );
 
@@ -71,7 +71,7 @@ function TableList() {
 
   const fetchUpdatedProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/products/getAllProducts");
+      const response = await axios.get("http://localhost:3002/products/getAllProducts");
 
       if (response.data.message === "SUCCESS") {
         return response.data.data;
@@ -88,7 +88,7 @@ function TableList() {
     try {
       console.log("Deleting product with ID:", productId);
   
-      const response = await axios.patch(`http://localhost:3001/products/delete/${productId}`);
+      const response = await axios.patch(`http://localhost:3002/products/delete/${productId}`);
       console.log("Delete response:", response.data);
   
       if (response.data.message === "Product deleted") {

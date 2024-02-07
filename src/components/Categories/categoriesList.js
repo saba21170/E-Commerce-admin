@@ -4,18 +4,29 @@ import { useSelector, useDispatch } from "react-redux";
 import { getAllCategory } from "./category.action";
 import { ENV } from "../../config/config";
 import Pagination from "rc-pagination";
+// import { IoMdCreate } from "react-icons/io";
+// import { FaTrash } from 'react-icons/fa';
+import { FaEye, FaTrash, FaEdit } from "react-icons/fa";
 import "rc-pagination/assets/index.css";
 // react-bootstrap components
-import { Card, Table, Container, Row, Col, Modal } from "react-bootstrap";
+import {
+  Card,
+  Table,
+  Container,
+  Row,
+  Col,
+  Modal,
+  Button,
+} from "react-bootstrap";
 
 function CategoriesList() {
-
-  const limit = 10
+  const limit = 10;
+  const [showModal, setShowModal] = useState(false);
+  const [modelType ,setModelType ] = useState(1)
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-
-  //console.log(selectedImage ,"hjdfjfhjdhfjhdjfh")
+  const [categoriesList, setCategoriesList] = useState()
 
   const dispatch = useDispatch();
 
@@ -24,22 +35,27 @@ function CategoriesList() {
   }, []);
 
   const { list } = useSelector((state) => state.category);
-  //console.log(list,"list");
 
   const handleImageClick = (image) => {
     setSelectedImage(image);
-    //console.log(image, "jhsdskjdksjdsk")
   };
-  //console.log(selectedImage)
+
   const handleCloseModal = () => {
     setSelectedImage(null);
   };
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  useEffect(() =>{
-    dispatch(getAllCategory(currentPage))
-  },[currentPage])
+  useEffect(() => {
+    dispatch(getAllCategory(currentPage));
+  }, [currentPage]);
+
+  useEffect(() => {
+    if (list) {
+      console.log(list, "list")
+      setCategoriesList(list.data)
+    }
+  }, [list])
 
 
   return (
@@ -58,7 +74,10 @@ function CategoriesList() {
                   }}
                 >
                   Category List
-                  <CreateButton />
+                  <Button variant="primary" onClick={()=>{setShowModal(true); setModelType(1) }}>
+                    Create
+                  </Button>
+
                 </Card.Title>
               </Card.Header>
               <Card.Body className="table-full-width table-responsive px-0">
@@ -69,20 +88,21 @@ function CategoriesList() {
                       <th className="border-0">Name</th>
                       <th className="border-0">Description</th>
                       <th className="border-0">Status</th>
-                      <th className="border-0">Image</th>
+                      {/* <th className="border-0">Image</th> */}
+                      <th className="border-0">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {list?.data.map(
+                    {categoriesList && categoriesList.map(
                       (category, index) => (
                         console.log(category, "dsdsjdjjsdjsdjs"),
                         (
                           <tr key={category._id}>
-                            <td>{((currentPage - 1) * limit + (index +1 ) )}</td>
+                            <td>{(currentPage - 1) * limit + (index + 1)}</td>
                             <td>{category.name}</td>
                             <td>{category.description}</td>
                             <td>{category.status}</td>
-                            <td className="image-cell">
+                            {/* <td className="image-cell">
                               <img
                                 src={`http://localhost:3002/static/${category.images[0]}`}
                                 style={{ cursor: "pointer", maxWidth: "50px" }}
@@ -91,15 +111,23 @@ function CategoriesList() {
                                   handleImageClick(category.images[0])
                                 }
                               />
+                            </td> */}
+                            <td>
+                              <FaEye onClick={()=> {setShowModal(true); setModelType(2)}} />
+                              <FaEdit onClick={()=> {setShowModal(true); setModelType(3)}}
+                              className="edit-icon" /> {/* Edit icon */}
+                              <FaTrash
+                                size={20}
+                                style={{ cursor: "pointer", color: "red" }}
+                              />
                             </td>
                           </tr>
                         )
                       )
                     )}
-                    
                   </tbody>
                 </Table>
-                
+
                 <Pagination
                   onChange={handlePageChange}
                   current={currentPage}
@@ -110,6 +138,8 @@ function CategoriesList() {
           </Col>
         </Row>
       </Container>
+
+      <CreateButton showModal={showModal} setShowModal={setShowModal} modelType={modelType}/>
 
       <Modal show={!!selectedImage} onHide={handleCloseModal}>
         <Modal.Header closeButton>
