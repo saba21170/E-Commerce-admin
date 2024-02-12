@@ -28,6 +28,13 @@ function CategoriesList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [categoriesList, setCategoriesList] = useState()
 
+  // State for storing input values
+  const [modalData, setModalData] = useState({
+    name: "",
+    description: "",
+    status: "",
+  });
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -95,7 +102,7 @@ function CategoriesList() {
                   <tbody>
                     {categoriesList && categoriesList.map(
                       (category, index) => (
-                        console.log(category, "dsdsjdjjsdjsdjs"),
+                        //console.log(category, "dsdsjdjjsdjsdjs"),
                         (
                           <tr key={category._id}>
                             <td>{(currentPage - 1) * limit + (index + 1)}</td>
@@ -113,7 +120,7 @@ function CategoriesList() {
                               />
                             </td> */}
                             <td>
-                              <FaEye onClick={()=> {setShowModal(true); setModelType(2)}} />
+                              <FaEye onClick={()=> {setShowModal(true); setModelType(2); setModalData(category)}} />
                               <FaEdit onClick={()=> {setShowModal(true); setModelType(3)}}
                               className="edit-icon" /> {/* Edit icon */}
                               <FaTrash
@@ -139,7 +146,9 @@ function CategoriesList() {
         </Row>
       </Container>
 
-      <CreateButton showModal={showModal} setShowModal={setShowModal} modelType={modelType}/>
+      <CreateButton showModal={showModal} setShowModal={setShowModal} modelType={modelType} modalData={modalData} 
+      setModalData={setModalData}
+      />
 
       <Modal show={!!selectedImage} onHide={handleCloseModal}>
         <Modal.Header closeButton>

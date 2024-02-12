@@ -7,14 +7,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useSelector, useDispatch } from "react-redux";
 import { createCategory } from "../Categories/category.action";
 
-function CreateButton({ showModal,setShowModal,modelType }) {
+function CreateButton({ showModal,setShowModal,modelType,modalData,setModalData }) {
 
-  // State for storing input values
-  const [modalData, setModalData] = useState({
-    name: "",
-    description: "",
-    status: "",
-  });
+  
+
+  console.log("this is my categoryList",modalData)
 
   const dispatch = useDispatch();
 
@@ -107,6 +104,7 @@ function CreateButton({ showModal,setShowModal,modelType }) {
                 placeholder="Enter Name"
                 name="name"
                 disabled = {modelType === 2}
+                
                 value={modalData.name}
                 onChange={handleInputChange}
               />
@@ -115,6 +113,7 @@ function CreateButton({ showModal,setShowModal,modelType }) {
               <Form.Label>Description</Form.Label>
               <CKEditor
                 editor={ClassicEditor}
+                disabled={modelType===2}
                 data={modalData.description} // Pass the initial data from the state
                 onChange={(event, editor) => {
                   const newData = editor.getData();
@@ -133,6 +132,7 @@ function CreateButton({ showModal,setShowModal,modelType }) {
                   label="Active"
                   name="status"
                   value="active"
+                  disabled = {modelType === 2}
                   checked={modalData.status === "active"}
                   onChange={handleInputChange}
                 />
@@ -141,6 +141,7 @@ function CreateButton({ showModal,setShowModal,modelType }) {
                   label="Inactive"
                   name="status"
                   value="inactive"
+                  disabled = {modelType === 2}
                   checked={modalData.status === "inactive"}
                   onChange={handleInputChange}
                 />
@@ -168,13 +169,14 @@ function CreateButton({ showModal,setShowModal,modelType }) {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button
+          {modelType === 1 ? <Button
             variant="primary"
             onClick={handleSubmit}
             style={{ marginLeft: "auto" }}
           >
             Create
-          </Button>
+          </Button> : ""}
+          
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
