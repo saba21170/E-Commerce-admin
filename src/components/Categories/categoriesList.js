@@ -22,17 +22,18 @@ import {
 function CategoriesList() {
   const limit = 10;
   const [showModal, setShowModal] = useState(false);
-  const [modelType ,setModelType ] = useState(1)
+  const [modelType, setModelType] = useState(1);
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [categoriesList, setCategoriesList] = useState()
+  const [categoriesList, setCategoriesList] = useState();
 
   // State for storing input values
   const [modalData, setModalData] = useState({
     name: "",
     description: "",
-    status: "",
+    status: false,
+    image: "",
   });
 
   const dispatch = useDispatch();
@@ -59,11 +60,9 @@ function CategoriesList() {
 
   useEffect(() => {
     if (list) {
-      console.log(list, "list")
-      setCategoriesList(list.data)
+      setCategoriesList(list.data);
     }
-  }, [list])
-
+  }, [list]);
 
   return (
     <>
@@ -81,10 +80,15 @@ function CategoriesList() {
                   }}
                 >
                   Category List
-                  <Button variant="primary" onClick={()=>{setShowModal(true); setModelType(1) }}>
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      setShowModal(true);
+                      setModelType(1);
+                    }}
+                  >
                     Create
                   </Button>
-
                 </Card.Title>
               </Card.Header>
               <Card.Body className="table-full-width table-responsive px-0">
@@ -95,43 +99,59 @@ function CategoriesList() {
                       <th className="border-0">Name</th>
                       <th className="border-0">Description</th>
                       <th className="border-0">Status</th>
-                      {/* <th className="border-0">Image</th> */}
+                      
                       <th className="border-0">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {categoriesList && categoriesList.map(
-                      (category, index) => (
-                        //console.log(category, "dsdsjdjjsdjsdjs"),
-                        (
-                          <tr key={category._id}>
-                            <td>{(currentPage - 1) * limit + (index + 1)}</td>
-                            <td>{category.name}</td>
-                            <td>{category.description}</td>
-                            <td>{category.status}</td>
-                            {/* <td className="image-cell">
-                              <img
-                                src={`http://localhost:3002/static/${category.images[0]}`}
-                                style={{ cursor: "pointer", maxWidth: "50px" }}
-                                className="image-preview"
-                                onClick={() =>
-                                  handleImageClick(category.images[0])
-                                }
-                              />
-                            </td> */}
-                            <td>
-                              <FaEye onClick={()=> {setShowModal(true); setModelType(2); setModalData(category)}} />
-                              <FaEdit onClick={()=> {setShowModal(true); setModelType(3)}}
-                              className="edit-icon" /> {/* Edit icon */}
-                              <FaTrash
-                                size={20}
-                                style={{ cursor: "pointer", color: "red" }}
-                              />
-                            </td>
-                          </tr>
+                    {categoriesList && categoriesList.length > 0
+                      ? categoriesList.map(
+                          (category, index) => (
+                            console.log(category, "dsdsjdjjsdjsdjs"),
+                            (
+                              <tr key={category._id}>
+                                <td>
+                                  {(currentPage - 1) * limit + (index + 1)}
+                                </td>
+                                <td>{category.name}</td>
+                                <td>
+                                  <div
+                                    dangerouslySetInnerHTML={{ __html: category.description }}
+                                  />
+                                </td>
+                                <td>
+                                  {category.status ? "Active" : "InActive"}
+                                </td>
+                              
+                                <td>
+                                  <FaEye
+                                    onClick={() => {
+                                      setShowModal(true);
+                                      setModelType(2);
+                                      setModalData({
+                                        ...category,
+                                        image: category.image,
+                                      });
+                                    }}
+                                  />
+                                  <FaEdit
+                                    onClick={() => {
+                                      setShowModal(true);
+                                      setModelType(3);
+                                    }}
+                                    className="edit-icon"
+                                  />{" "}
+                                  {/* Edit icon */}
+                                  <FaTrash
+                                    size={20}
+                                    style={{ cursor: "pointer", color: "red" }}
+                                  />
+                                </td>
+                              </tr>
+                            )
+                          )
                         )
-                      )
-                    )}
+                      : ""}
                   </tbody>
                 </Table>
 
@@ -146,8 +166,12 @@ function CategoriesList() {
         </Row>
       </Container>
 
-      <CreateButton showModal={showModal} setShowModal={setShowModal} modelType={modelType} modalData={modalData} 
-      setModalData={setModalData}
+      <CreateButton
+        showModal={showModal}
+        setShowModal={setShowModal}
+        modelType={modelType}
+        modalData={modalData}
+        setModalData={setModalData}
       />
 
       <Modal show={!!selectedImage} onHide={handleCloseModal}>

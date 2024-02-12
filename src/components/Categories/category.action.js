@@ -25,10 +25,10 @@ export const createCategory = (modalBody) => {
     try {
       const response = await fetch(`${ENV.baseURL}/add`, {
         method: "POST",
-        headers: {
-          'Content-Type': "application/json"
-        },
-        body: JSON.stringify(modalBody)
+        // headers: {
+        //   'Content-Type': "application/json"
+        // },
+        body: modalBody
       });
       const data = await response.json();
      // console.log(data ,"jwijwjwijiejwiej")

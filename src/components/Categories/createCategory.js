@@ -5,50 +5,56 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useSelector, useDispatch } from "react-redux";
-import { createCategory } from "../Categories/category.action";
+import { createCategory, getAllCategory } from "../Categories/category.action";
+import { ENV } from "../../config/config";
 
-function CreateButton({ showModal,setShowModal,modelType,modalData,setModalData }) {
-
-  
-
-  console.log("this is my categoryList",modalData)
-
+function CreateButton({
+  showModal,
+  setShowModal,
+  modelType,
+  modalData,
+  setModalData,
+}) {
   const dispatch = useDispatch();
 
   // New state for image preview
-  // const [imagePreview, setImagePreview] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
 
   // Reset function to clear all form fields
   const resetForm = () => {
     setModalData({
       name: "",
       description: "",
-      status: modalData.status,
+      status: "",
+      image: "",
     });
-
-    // setImagePreview("");
+    setImagePreview("");
   };
 
   // Function for storing file
-  // const handleFileUpload = (e) => {
-  //   const files = e.target.files;
+  const handleFileUpload = (e) => {
+    const files = e.target.files[0];
+    setModalData((prevData) => ({
+      ...prevData,
+      image: files,
+    }));
 
-  //   setModalData((prevData) => ({
-  //     ...prevData,
-  //     images: files, // Send the array of selected files
-  //     icon: files ? URL.createObjectURL(files[0]) : "", // Update icon based on the first file presence
-  //   }));
-
-  // setImagePreview
-  // setImagePreview(files ? URL.createObjectURL(files[0]) : "");
-
-  // Clear validation error for the image field
-  //   setValidationErrors((prevErrors) => ({
-  //     ...prevErrors,
-  //     images: undefined,
-  //   }));
-  // };
+    //setImagePreview
+    setImagePreview(files ? URL.createObjectURL(files) : "");
+  };
   // Function to handle changes in input fields
+
+  const handleStatusChange = (event) => {
+    const { name, value } = event.target;
+
+    const newValue = value === "active" ? true : false;
+
+    setModalData((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setModalData((prevmodalData) => ({
@@ -56,32 +62,31 @@ function CreateButton({ showModal,setShowModal,modelType,modalData,setModalData 
       [name]: value,
     }));
   };
-//console.log(modalData)
-  // Function to handle modal show
-  // const handleShow = () => setShow(true);
-
-  // // Function to handle modal close
+  // Function to handle modal close
   const handleClose = () => {
     resetForm();
     setShowModal(false);
   };
-
   // Function to handle form submission
   const handleSubmit = async () => {
-    const newData = {
-      name:modalData.name,
-      description:modalData.description,
-      status:modalData.status
-    };
-    console.log(newData);
+    const productFormData = new FormData();
 
+    productFormData.append("name", modalData.name);
+    productFormData.append("description", modalData.description);
+    productFormData.append("status", modalData.status);
+    productFormData.append("image", modalData.image);
 
-    dispatch(createCategory(newData));
+    dispatch(createCategory(productFormData))
+      .then(() => {
+        dispatch(getAllCategory(1));
+        setShowModal(false);
+        resetForm();
+      })
+      .catch(() => console.log("Something went wrong!"));
   };
 
   return (
     <>
-
       <Modal
         show={showModal}
         onHide={handleClose}
@@ -90,9 +95,9 @@ function CreateButton({ showModal,setShowModal,modelType,modalData,setModalData 
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            {modelType === 1 ? "Create" : modelType === 2 ? "View" : "Edit" }
-            
-             Category</Modal.Title>
+            {modelType === 1 ? "Create" : modelType === 2 ? "View" : "Edit"}
+            Category
+          </Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -103,8 +108,7 @@ function CreateButton({ showModal,setShowModal,modelType,modalData,setModalData 
                 type="text"
                 placeholder="Enter Name"
                 name="name"
-                disabled = {modelType === 2}
-                
+                disabled={modelType === 2}
                 value={modalData.name}
                 onChange={handleInputChange}
               />
@@ -113,8 +117,8 @@ function CreateButton({ showModal,setShowModal,modelType,modalData,setModalData 
               <Form.Label>Description</Form.Label>
               <CKEditor
                 editor={ClassicEditor}
-                disabled={modelType===2}
-                data={modalData.description} // Pass the initial data from the state
+                disabled={modelType === 2}
+                data={modalData.description}
                 onChange={(event, editor) => {
                   const newData = editor.getData();
                   setModalData((prevData) => ({
@@ -132,51 +136,73 @@ function CreateButton({ showModal,setShowModal,modelType,modalData,setModalData 
                   label="Active"
                   name="status"
                   value="active"
-                  disabled = {modelType === 2}
-                  checked={modalData.status === "active"}
-                  onChange={handleInputChange}
+                  disabled={modelType === 2}
+                  checked={modalData.status}
+                  onChange={handleStatusChange}
                 />
                 <Form.Check
                   type="radio"
                   label="Inactive"
                   name="status"
                   value="inactive"
-                  disabled = {modelType === 2}
-                  checked={modalData.status === "inactive"}
-                  onChange={handleInputChange}
+                  disabled={modelType === 2}
+                  checked={!modalData.status}
+                  onChange={handleStatusChange}
                 />
               </div>
             </Form.Group>
-            {/* 
-            <Form.Group controlId="formId">
-              <Form.Label>Image</Form.Label>
-              <Form.Control
-                type="file"
-                name="iamges"
-                onChange={handleFileUpload}
-              />
-              {imagePreview && (
-                <div style={{ marginTop: "10px" }}>
-                  <img
-                    className="image"
-                    src={imagePreview}
-                    alt="Image Preview"
-                  />
-                </div>
-              )}
-            </Form.Group> */}
+
+            {modelType !== 2 && (
+              <Form.Group controlId="formId">
+                <Form.Label>Image</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="image"
+                  onChange={handleFileUpload}
+                />
+                {imagePreview && (
+                  <div style={{ marginTop: "10px" }}>
+                    <img
+                      className="image"
+                      src={imagePreview}
+                      alt="Image Preview"
+                    />
+                  </div>
+                )}
+              </Form.Group>
+            )}
+
+            {modelType === 2 &&
+              modalData.image &&
+              (console.log(modalData.image, "sabababaaaa"),
+              (
+                <Form.Group controlId="formId">
+                  <Form.Label>Image</Form.Label>
+                  <div style={{ marginTop: "10px" }}>
+                    <img
+                      className="image"
+                      src={`${ENV.imageURL}/${modalData.image}`}
+                      alt="Image"
+                    />
+                  </div>
+                </Form.Group>
+              ))}
           </Form>
         </Modal.Body>
 
         <Modal.Footer>
-          {modelType === 1 ? <Button
-            variant="primary"
-            onClick={handleSubmit}
-            style={{ marginLeft: "auto" }}
-          >
-            Create
-          </Button> : ""}
-          
+          {modelType === 1 ? (
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              style={{ marginLeft: "auto" }}
+            >
+              Create
+            </Button>
+          ) : (
+            ""
+          )}
+
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
