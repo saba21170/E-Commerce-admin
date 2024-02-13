@@ -5,7 +5,11 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useSelector, useDispatch } from "react-redux";
-import { createCategory, getAllCategory } from "../Categories/category.action";
+import {
+  createCategory,
+  getAllCategory,
+  updateCategory,
+} from "../Categories/category.action";
 import { ENV } from "../../config/config";
 
 function CreateButton({
@@ -14,6 +18,7 @@ function CreateButton({
   modelType,
   modalData,
   setModalData,
+  currentPage,
 }) {
   const dispatch = useDispatch();
 
@@ -76,13 +81,27 @@ function CreateButton({
     productFormData.append("status", modalData.status);
     productFormData.append("image", modalData.image);
 
-    dispatch(createCategory(productFormData))
-      .then(() => {
-        dispatch(getAllCategory(1));
-        setShowModal(false);
-        resetForm();
-      })
-      .catch(() => console.log("Something went wrong!"));
+    if (modelType === 3) {
+      productFormData.append("id", modalData.id);
+    }
+
+    {
+      modelType === 1
+        ? dispatch(createCategory(productFormData))
+            .then(() => {
+              dispatch(getAllCategory(currentPage));
+              setShowModal(false);
+              resetForm();
+            })
+            .catch(() => console.log("Something went wrong!"))
+        : dispatch(updateCategory(productFormData, modalData.id))
+            .then(() => {
+              dispatch(getAllCategory(currentPage));
+              setShowModal(false);
+              resetForm();
+            })
+            .catch(() => console.log("Something went wrong!"));
+    }
   };
 
   return (
@@ -95,7 +114,7 @@ function CreateButton({
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            {modelType === 1 ? "Create" : modelType === 2 ? "View" : "Edit"}
+            {modelType === 1 ? "Create" : modelType === 2 ? "View" : "Edit"}{" "}
             Category
           </Modal.Title>
         </Modal.Header>
@@ -172,40 +191,36 @@ function CreateButton({
               </Form.Group>
             )}
 
-            {modelType === 2 &&
-              modalData.image &&
-              (console.log(modalData.image, "sabababaaaa"),
-              (
-                <Form.Group controlId="formId">
-                  <Form.Label>Image</Form.Label>
-                  <div style={{ marginTop: "10px" }}>
-                    <img
-                      className="image"
-                      src={`${ENV.imageURL}/${modalData.image}`}
-                      alt="Image"
-                    />
-                  </div>
-                </Form.Group>
-              ))}
+            {modelType !== 1 && modalData.image && (
+              <Form.Group controlId="formId">
+                <Form.Label>Image</Form.Label>
+                <div style={{ marginTop: "10px" }}>
+                  <img
+                    className="image"
+                    src={`${ENV.imageURL}/${modalData.image}`}
+                    alt="Image"
+                  />
+                </div>
+              </Form.Group>
+            )}
           </Form>
         </Modal.Body>
 
         <Modal.Footer>
-          {modelType === 1 ? (
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          {modelType !== 2 ? (
             <Button
               variant="primary"
               onClick={handleSubmit}
               style={{ marginLeft: "auto" }}
             >
-              Create
+              {modelType === 1 ? "Create" : "Edit"}
             </Button>
           ) : (
             ""
           )}
-
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
         </Modal.Footer>
       </Modal>
     </>

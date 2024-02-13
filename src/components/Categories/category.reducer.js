@@ -1,4 +1,4 @@
-import { GET_ALL_CATEGORY, ADD_CATEGORY } from "../../redux/types";
+import { GET_ALL_CATEGORY, ADD_CATEGORY,UPDATE_CATEGORY,DELETE_CATEGORY } from "../../redux/types";
 
 const categoryReducer = (state = {}, action) => {
   switch (action.type) {
@@ -11,6 +11,16 @@ const categoryReducer = (state = {}, action) => {
       return {
         ...state,
         add: action.payload,
+      };
+      case UPDATE_CATEGORY:
+      return {
+        ...state,
+        update: action.payload,
+      };
+      case DELETE_CATEGORY:
+      return {
+        ...state,
+        delete: action.payload,
       };
     default:
       return state;

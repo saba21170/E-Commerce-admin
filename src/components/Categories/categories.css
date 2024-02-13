@@ -49,3 +49,9 @@
     height: 40px;
     object-fit: cover; /* Ensures the image covers the entire cell */
   }
+  td > svg {
+    margin-right: 10px; /* Adjust the spacing between the buttons */
+  }
+  
+ 
+  

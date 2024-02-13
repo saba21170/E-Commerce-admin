@@ -4,9 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { getAllCategory } from "./category.action";
 import { ENV } from "../../config/config";
 import Pagination from "rc-pagination";
-// import { IoMdCreate } from "react-icons/io";
-// import { FaTrash } from 'react-icons/fa';
 import { FaEye, FaTrash, FaEdit } from "react-icons/fa";
+import DeleteButton from "./deleteCategory";
 import "rc-pagination/assets/index.css";
 // react-bootstrap components
 import {
@@ -30,6 +29,7 @@ function CategoriesList() {
 
   // State for storing input values
   const [modalData, setModalData] = useState({
+    id: "",
     name: "",
     description: "",
     status: false,
@@ -99,58 +99,55 @@ function CategoriesList() {
                       <th className="border-0">Name</th>
                       <th className="border-0">Description</th>
                       <th className="border-0">Status</th>
-                      
                       <th className="border-0">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {categoriesList && categoriesList.length > 0
-                      ? categoriesList.map(
-                          (category, index) => (
-                            console.log(category, "dsdsjdjjsdjsdjs"),
-                            (
-                              <tr key={category._id}>
-                                <td>
-                                  {(currentPage - 1) * limit + (index + 1)}
-                                </td>
-                                <td>{category.name}</td>
-                                <td>
-                                  <div
-                                    dangerouslySetInnerHTML={{ __html: category.description }}
-                                  />
-                                </td>
-                                <td>
-                                  {category.status ? "Active" : "InActive"}
-                                </td>
-                              
-                                <td>
-                                  <FaEye
-                                    onClick={() => {
-                                      setShowModal(true);
-                                      setModelType(2);
-                                      setModalData({
-                                        ...category,
-                                        image: category.image,
-                                      });
-                                    }}
-                                  />
-                                  <FaEdit
-                                    onClick={() => {
-                                      setShowModal(true);
-                                      setModelType(3);
-                                    }}
-                                    className="edit-icon"
-                                  />{" "}
-                                  {/* Edit icon */}
-                                  <FaTrash
-                                    size={20}
-                                    style={{ cursor: "pointer", color: "red" }}
-                                  />
-                                </td>
-                              </tr>
-                            )
-                          )
-                        )
+                      ? categoriesList.map((category, index) => (
+                          <tr key={category._id}>
+                            <td>{(currentPage - 1) * limit + (index + 1)}</td>
+                            <td>{category.name}</td>
+                            <td>
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: category.description,
+                                }}
+                              />
+                            </td>
+                            <td>{category.status ? "Active" : "InActive"}</td>
+
+                            <td>
+                              <FaEye
+                                onClick={() => {
+                                  setShowModal(true);
+                                  setModelType(2);
+                                  setModalData({
+                                    ...category,
+                                    image: category.image,
+                                  });
+                                }}
+                              />
+                              <FaEdit
+                                onClick={() => {
+                                  setShowModal(true);
+                                  setModelType(3);
+                                  setModalData({
+                                    ...category,
+                                    image: category.image,
+                                    id: category._id,
+                                  });
+                                }}
+                                className="edit-icon"
+                              />{" "}
+                              {/* Edit icon */}
+                              <DeleteButton
+                                categoryId={category._id}
+                                currentPage={currentPage}
+                              />
+                            </td>
+                          </tr>
+                        ))
                       : ""}
                   </tbody>
                 </Table>
@@ -165,29 +162,14 @@ function CategoriesList() {
           </Col>
         </Row>
       </Container>
-
       <CreateButton
         showModal={showModal}
         setShowModal={setShowModal}
         modelType={modelType}
         modalData={modalData}
+        currentPage={currentPage}
         setModalData={setModalData}
       />
-
-      <Modal show={!!selectedImage} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Image Preview</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedImage && (
-            <img
-              src={`http://localhost:3002/static/${selectedImage}`}
-              alt="Preview"
-              style={{ width: "100%" }}
-            />
-          )}
-        </Modal.Body>
-      </Modal>
     </>
   );
 }
