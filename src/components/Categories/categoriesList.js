@@ -16,23 +16,25 @@ import {
   Col,
   Modal,
   Button,
+  Form,
 } from "react-bootstrap";
 
 function CategoriesList() {
   const limit = 10;
   const [showModal, setShowModal] = useState(false);
   const [modelType, setModelType] = useState(1);
-
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [categoriesList, setCategoriesList] = useState();
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [nameFilter, setNameFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState();
 
   // State for storing input values
   const [modalData, setModalData] = useState({
     id: "",
     name: "",
     description: "",
-    status: false,
+    status: "",
     image: "",
   });
 
@@ -43,6 +45,8 @@ function CategoriesList() {
   }, []);
 
   const { list } = useSelector((state) => state.category);
+
+  console.log(list, "akjjsjdsijdijisj");
 
   const handleImageClick = (image) => {
     setSelectedImage(image);
@@ -63,6 +67,22 @@ function CategoriesList() {
       setCategoriesList(list.data);
     }
   }, [list]);
+
+  const handleSearch = () => {
+    dispatch(getAllCategory(currentPage, nameFilter, statusFilter));
+  };
+
+  // Filter categories based on name and status
+  // console.log(categoriesList,"categorieeessssssssssssssssssssss")
+  //  const filteredCategories = categoriesList && categoriesList.length > 0 ? (
+  //   categoriesList.filter((category) => {
+  //     //console.log(category , "we are categories")
+  //     return (
+  //       category.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
+  //       (statusFilter === "" || category.status.toString() === statusFilter)
+  //     );
+  //   })
+  // ) : "";
 
   return (
     <>
@@ -90,6 +110,28 @@ function CategoriesList() {
                     Create
                   </Button>
                 </Card.Title>
+                <div className="search-form">
+                  <Form inline>
+                    <Form.Control
+                      type="text"
+                      placeholder="Search by name"
+                      className="mr-sm-2"
+                      value={nameFilter}
+                      onChange={(e) => setNameFilter(e.target.value)}
+                    />
+                    <Form.Control
+                      as="select"
+                      className="mr-sm-2"
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                      <option value="">All Status</option>
+                      <option value={1}>Active</option>
+                      <option value={0}>Inactive</option>
+                    </Form.Control>
+                    <Button onClick={handleSearch}>search</Button>
+                  </Form>
+                </div>
               </Card.Header>
               <Card.Body className="table-full-width table-responsive px-0">
                 <Table className="table-hover table-striped">

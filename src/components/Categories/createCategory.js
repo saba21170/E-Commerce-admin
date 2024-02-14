@@ -52,7 +52,7 @@ function CreateButton({
   const handleStatusChange = (event) => {
     const { name, value } = event.target;
 
-    const newValue = value === "active" ? true : false;
+    const newValue = value === "active" ? 1 : 0;
 
     setModalData((prevState) => ({
       ...prevState,
@@ -179,7 +179,8 @@ function CreateButton({
                   name="image"
                   onChange={handleFileUpload}
                 />
-                {imagePreview && (
+
+                {modelType === 1 && imagePreview && (
                   <div style={{ marginTop: "10px" }}>
                     <img
                       className="image"
@@ -195,11 +196,21 @@ function CreateButton({
               <Form.Group controlId="formId">
                 <Form.Label>Image</Form.Label>
                 <div style={{ marginTop: "10px" }}>
-                  <img
-                    className="image"
-                    src={`${ENV.imageURL}/${modalData.image}`}
-                    alt="Image"
-                  />
+                  {modelType === 3 && imagePreview ? (
+                    <div style={{ marginTop: "10px" }}>
+                      <img
+                        className="image"
+                        src={imagePreview}
+                        alt="Image Preview"
+                      />
+                    </div>
+                  ) : (
+                    <img
+                      className="image"
+                      src={`${ENV.imageURL}/${modalData.image}`}
+                      alt="Image"
+                    />
+                  )}
                 </div>
               </Form.Group>
             )}

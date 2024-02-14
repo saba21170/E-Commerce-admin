@@ -7,11 +7,21 @@ import {
 } from "../../redux/types";
 import axios from "axios";
 
-export const getAllCategory = (page) => {
+export const getAllCategory = (page,name,status) => {
+
+  console.log(status, "status")
+  console.log(typeof status, "type status")
+
   return async (dispatch) => {
+
+    let url = `${ENV.baseURL}/list?page=${page}`
+
+    if(name || status) {
+      url += `&name=${name}&status=${status}`
+    }
+
     try {
-      console.log(ENV, "ENV.baseURL");
-      const response = await fetch(`${ENV.baseURL}/list?page=${page}`);
+      const response = await fetch(url);
       const json = await response.json();
       dispatch({
         type: GET_ALL_CATEGORY,
