@@ -45,6 +45,7 @@ function CategoriesList() {
   }, []);
 
   const { list } = useSelector((state) => state.category);
+  const { message } = useSelector((state) => state.failCategory);
 
   console.log(list, "akjjsjdsijdijisj");
 
@@ -133,6 +134,7 @@ function CategoriesList() {
                   </Form>
                 </div>
               </Card.Header>
+
               <Card.Body className="table-full-width table-responsive px-0">
                 <Table className="table-hover table-striped">
                   <thead>

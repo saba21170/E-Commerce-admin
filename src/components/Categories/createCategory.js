@@ -5,6 +5,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useSelector, useDispatch } from "react-redux";
+import { validateForm } from "./validation";
 import {
   createCategory,
   getAllCategory,
@@ -24,6 +25,7 @@ function CreateButton({
 
   // New state for image preview
   const [imagePreview, setImagePreview] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Reset function to clear all form fields
   const resetForm = () => {
@@ -34,7 +36,13 @@ function CreateButton({
       image: "",
     });
     setImagePreview("");
+
+    setValidationErrors({});
   };
+
+  const data = useSelector((state) => state.failCategory.message);
+
+ // console.log(data, "messageeeeeeeeee");
 
   // Function for storing file
   const handleFileUpload = (e) => {
@@ -42,6 +50,11 @@ function CreateButton({
     setModalData((prevData) => ({
       ...prevData,
       image: files,
+    }));
+
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      files: undefined,
     }));
 
     //setImagePreview
@@ -66,41 +79,55 @@ function CreateButton({
       ...prevmodalData,
       [name]: value,
     }));
+
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: undefined,
+    }));
   };
   // Function to handle modal close
   const handleClose = () => {
     resetForm();
     setShowModal(false);
   };
+
   // Function to handle form submission
   const handleSubmit = async () => {
-    const productFormData = new FormData();
+    const errors = validateForm(modalData);
 
-    productFormData.append("name", modalData.name);
-    productFormData.append("description", modalData.description);
-    productFormData.append("status", modalData.status);
-    productFormData.append("image", modalData.image);
+    //console.log(errors , "erorrssssssssssss") ;
 
-    if (modelType === 3) {
-      productFormData.append("id", modalData.id);
-    }
+    setValidationErrors(errors);
 
-    {
-      modelType === 1
-        ? dispatch(createCategory(productFormData))
-            .then(() => {
-              dispatch(getAllCategory(currentPage));
-              setShowModal(false);
-              resetForm();
-            })
-            .catch(() => console.log("Something went wrong!"))
-        : dispatch(updateCategory(productFormData, modalData.id))
-            .then(() => {
-              dispatch(getAllCategory(currentPage));
-              setShowModal(false);
-              resetForm();
-            })
-            .catch(() => console.log("Something went wrong!"));
+    if (Object.keys(errors).length === 0) {
+      const productFormData = new FormData();
+
+      productFormData.append("name", modalData.name);
+      productFormData.append("description", modalData.description);
+      productFormData.append("status", modalData.status);
+      productFormData.append("image", modalData.image);
+
+      if (modelType === 3) {
+        productFormData.append("id", modalData.id);
+      }
+
+      {
+        modelType === 1
+          ? dispatch(createCategory(productFormData))
+              .then(() => {
+                dispatch(getAllCategory(currentPage));
+                // setShowModal(false);
+                resetForm();
+              })
+              .catch(() => console.log("Something went wrong!"))
+          : dispatch(updateCategory(productFormData, modalData.id))
+              .then(() => {
+                dispatch(getAllCategory(currentPage));
+                setShowModal(false);
+                resetForm();
+              })
+              .catch(() => console.log("Something went wrong!"));
+      }
     }
   };
 
@@ -131,6 +158,16 @@ function CreateButton({
                 value={modalData.name}
                 onChange={handleInputChange}
               />
+              {data && !data.status && (
+                <div style={{ color: "red", marginTop: "5px" }}>
+                  {data.message}
+                </div>
+              )}
+              {validationErrors.name && (
+                <div style={{ color: "red", marginTop: "5px" }}>
+                  {validationErrors.name}
+                </div>
+              )}
             </Form.Group>
             <Form.Group controlId="formId">
               <Form.Label>Description</Form.Label>
@@ -179,6 +216,11 @@ function CreateButton({
                   name="image"
                   onChange={handleFileUpload}
                 />
+                {validationErrors.image && (
+                  <div style={{ color: "red", marginTop: "5px" }}>
+                    {validationErrors.image}
+                  </div>
+                )}
 
                 {modelType === 1 && imagePreview && (
                   <div style={{ marginTop: "10px" }}>

@@ -1,0 +1,1 @@
+export const FAILED_CATEGORY ='FAILED_CATEGORY';
