@@ -5,20 +5,19 @@ import {
   UPDATE_CATEGORY,
   DELETE_CATEGORY,
 } from "../../redux/types";
-import { FAILED_CATEGORY } from "../../redux/reduxError/types";
-import axios from "axios";
-
+import { failedCategory,clearError } from "../../redux/reduxError/failed.action";
 export const getAllCategory = (page, name, status) => {
-  //console.log(status, "status");
-  console.log(typeof status, "type status");
 
   return async (dispatch) => {
     let url = `${ENV.baseURL}/list?page=${page}`;
 
-    if (name || status) {
+    if (name && status) {
       url += `&name=${name}&status=${status}`;
+    } else if (name) {
+      url += `&name=${name}`;
+    } else if (status) {
+      url += `&status=${status}`;
     }
-
     try {
       const response = await fetch(url);
       const json = await response.json();
@@ -33,8 +32,9 @@ export const getAllCategory = (page, name, status) => {
 };
 
 export const createCategory = (modalBody) => {
+
   return async (dispatch) => {
-    //console.log(modalBody, "wwwwwwww");
+    dispatch(clearError());
     try {
       const response = await fetch(`${ENV.baseURL}/add`, {
         method: "POST",
@@ -44,24 +44,18 @@ export const createCategory = (modalBody) => {
         body: modalBody,
       });
       const data = await response.json();
-      console.log(data ,"this iss data ")
-      if(data.status) {
+      if (data.status) {
         dispatch({
-          type:ADD_CATEGORY,
-          payload:data
-        })
-        // console.log("success case")
+          type: ADD_CATEGORY,
+          payload: data,
+        });
+      } else {
+        // Dispatch failedCategory action
+        dispatch(failedCategory(data));
+        console.log("error case");
       }
-      else {
-        dispatch({
-          type:FAILED_CATEGORY,
-          payload:data
-        })
-        console.log("error case")
-      }
-
     } catch (error) {
-      console.error(error,"ERROR");
+      console.error(error, "ERROR");
     }
   };
 };

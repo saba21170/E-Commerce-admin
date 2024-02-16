@@ -6,6 +6,7 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useSelector, useDispatch } from "react-redux";
 import { validateForm } from "./validation";
+import { clearError } from "../../redux/reduxError/failed.action";
 import {
   createCategory,
   getAllCategory,
@@ -27,7 +28,7 @@ function CreateButton({
   const [imagePreview, setImagePreview] = useState("");
   const [validationErrors, setValidationErrors] = useState({});
 
-  // Reset function to clear all form fields
+ // Reset function to clear all form fields
   const resetForm = () => {
     setModalData({
       name: "",
@@ -39,10 +40,7 @@ function CreateButton({
 
     setValidationErrors({});
   };
-
-  const data = useSelector((state) => state.failCategory.message);
-
- // console.log(data, "messageeeeeeeeee");
+  const errorMessage = useSelector((state) => state.failCategory.message);
 
   // Function for storing file
   const handleFileUpload = (e) => {
@@ -87,16 +85,15 @@ function CreateButton({
   };
   // Function to handle modal close
   const handleClose = () => {
+    dispatch(clearError());
     resetForm();
     setShowModal(false);
   };
 
   // Function to handle form submission
   const handleSubmit = async () => {
+
     const errors = validateForm(modalData);
-
-    //console.log(errors , "erorrssssssssssss") ;
-
     setValidationErrors(errors);
 
     if (Object.keys(errors).length === 0) {
@@ -117,7 +114,7 @@ function CreateButton({
               .then(() => {
                 dispatch(getAllCategory(currentPage));
                 // setShowModal(false);
-                resetForm();
+               // resetForm();
               })
               .catch(() => console.log("Something went wrong!"))
           : dispatch(updateCategory(productFormData, modalData.id))
@@ -158,16 +155,16 @@ function CreateButton({
                 value={modalData.name}
                 onChange={handleInputChange}
               />
-              {data && !data.status && (
+              {errorMessage && !errorMessage.status && (
                 <div style={{ color: "red", marginTop: "5px" }}>
-                  {data.message}
+                  {errorMessage.message}
                 </div>
               )}
-              {validationErrors.name && (
+              {validationErrors?.name && (
                 <div style={{ color: "red", marginTop: "5px" }}>
-                  {validationErrors.name}
+                  {validationErrors?.name}
                 </div>
-              )}
+              )} 
             </Form.Group>
             <Form.Group controlId="formId">
               <Form.Label>Description</Form.Label>
@@ -216,9 +213,9 @@ function CreateButton({
                   name="image"
                   onChange={handleFileUpload}
                 />
-                {validationErrors.image && (
+                {validationErrors?.image && (
                   <div style={{ color: "red", marginTop: "5px" }}>
-                    {validationErrors.image}
+                    {validationErrors?.image}
                   </div>
                 )}
 

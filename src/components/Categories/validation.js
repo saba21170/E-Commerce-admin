@@ -1,18 +1,27 @@
-import validator from "validator";
+import validator from 'validator';
 
-// Function to validate the form
-export const validateForm = (modalData) => {
+export const validateForm = (modalData, errorMessage) => {
   const errors = {};
 
+
+
   // Validate each form field here
-  if (!validator.isLength(modalData.name, { min: 1 })) {
+
+  if (!validator.isLength(modalData && modalData.name, { min: 1 })) {
     errors.name = "Name is required";
+  } else {
+   
+    if (errorMessage && !errorMessage.status) {
+      errors.name = errorMessage.message;
+    }
   }
 
   if (!modalData.image) {
-    
     errors.image = "Image is required";
   }
+
+ // console.log(errors, "ERROR!!! object")
+
 
   return errors;
 };

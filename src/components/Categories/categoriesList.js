@@ -45,9 +45,6 @@ function CategoriesList() {
   }, []);
 
   const { list } = useSelector((state) => state.category);
-  const { message } = useSelector((state) => state.failCategory);
-
-  console.log(list, "akjjsjdsijdijisj");
 
   const handleImageClick = (image) => {
     setSelectedImage(image);
