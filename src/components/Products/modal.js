@@ -8,35 +8,34 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { validateForm } from "./validation";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { createProduct, getAllProducts } from "./products.action";
+import { getAllCategory } from "../Categories/category.action";
 
 function CreateButton() {
   const [show, setShow] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const [categories, setCategories] = useState([]);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getAllCategory());
+  }, []);
+
+  const { list } = useSelector((state) => state.category);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3001/categories/list"
-        );
-        if (response.data.message === "SUCCESS") {
-          setCategories(response.data.data);
-          // console.log(response.data.data);
-        } else {
-          console.error(
-            "Failed to fetch categories:",
-            response.data.description
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error.message);
-      }
-    };
-
-    fetchCategories();
+    dispatch(getAllProducts());
   }, []);
+
+  const { products } = useSelector((state) => state.product);
+
+  useEffect(() => {
+    if (list) {
+      setCategoriesList(list.data);
+    }
+  }, [list]);
 
   // State for storing input values
   const [formData, setFormData] = useState({
@@ -72,7 +71,7 @@ function CreateButton() {
 
   //Function for storing file
   const handleFileUpload = (e) => {
-    const file = e.target.files ;
+    const file = e.target.files;
 
     // Declare the errors variable
     let errors = {};
@@ -111,7 +110,6 @@ function CreateButton() {
         category: selectedCategory.value,
       }));
     } else {
-      // Handle other input changes as before
       const newValue = type === "checkbox" ? checked : value;
       setFormData((prevData) => ({
         ...prevData,
@@ -119,10 +117,10 @@ function CreateButton() {
       }));
     }
     // Clear validation error for the corresponding field
-    setValidationErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: undefined,
-    }));
+    // setValidationErrors((prevErrors) => ({
+    //   ...prevErrors,
+    //   [name]: undefined,
+    // }));
   };
 
   // Function to handle modal show
@@ -135,68 +133,34 @@ function CreateButton() {
   };
 
   // Function to handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errors = validateForm(formData, selectedCategory);
-    //console.log(errors, "errors")
-    setValidationErrors(errors);
+  const handleSubmit = async () => {
+    const { images } = formData;
 
-    if (Object.keys(errors).length === 0) {
-      try {
-        console.log("yes");
-        await createProduct(); // Make the API call
+    const productFormData = new FormData();
 
-        resetForm();
-        handleClose();
-      } catch (error) {
-        // Log the error message or display it to the user
-        console.error("Error creating product:", error.message);
-      }
+    for (let index = 0; index < images.length; index++) {
+      productFormData.append("images", images[index]);
     }
-  };
+    productFormData.append("title", formData.title);
+    productFormData.append("description", formData.description);
+    productFormData.append("price", formData.price);
+    productFormData.append("featured", formData.featured);
+    productFormData.append("category", selectedCategory);
 
-  // Function for creating products
-  const createProduct = async () => {
-    try {
-      const {images} = formData
-
-
-      const productFormData = new FormData();
-
-      for (let index = 0; index < images.length; index++) {
-        productFormData.append("images", images[index]);
-      }
-      productFormData.append("title", formData.title);
-      productFormData.append("description", formData.description);
-      productFormData.append("price", formData.price);
-      productFormData.append("featured", formData.featured);
-      productFormData.append("category", selectedCategory);
-
-
-      // // Check if a category is selected
-      if (!selectedCategory) {
-        console.error("Category is required");
-        return;
-      }
-      const response = await axios.post("http://localhost:3001/products/add", 
-      productFormData
-      );
-      
-
-      if (response.data.message === "SUCCESS") {
-      } else {
-        console.error("Failed to create product:", response.data.description);
-      }
-    } catch (error) {
-      console.log(error);
-
-      console.error("Error creating product:", error.message);
-      throw error;
-    }
+    dispatch(createProduct(productFormData));
+    handleClose();
   };
 
   const handleCat = (option) => {
     setSelectedCategory(option.value);
+  };
+
+  useEffect(() => {
+    dispatch(getAllCategory(currentPage));
+  }, [currentPage]);
+
+  const onScroll = () => {
+    setCurrentPage((prevData) => prevData + 1);
   };
 
   return (
@@ -261,14 +225,23 @@ function CreateButton() {
               <Form.Label>Category</Form.Label>
               <Select
                 name="category"
-                defaultValue={categories.filter(
-                  (category) => category._id === selectedCategory
-                )}
+                onMenuScrollToBottom={onScroll}
+                defaultValue={
+                  categoriesList && categoriesList.length > 0
+                    ? categoriesList.filter(
+                        (category) => category._id === selectedCategory
+                      )
+                    : ""
+                }
                 onChange={(selectedOption) => handleCat(selectedOption)}
-                options={categories.map((category) => ({
-                  value: category._id,
-                  label: category.name,
-                }))}
+                options={
+                  categoriesList && categoriesList.length > 0
+                    ? categoriesList.map((category) => ({
+                        value: category._id,
+                        label: category.name,
+                      }))
+                    : ""
+                }
               />
               {validationErrors.category && (
                 <div style={{ color: "red", marginTop: "5px" }}>

@@ -28,7 +28,7 @@ function CreateButton({
   const [imagePreview, setImagePreview] = useState("");
   const [validationErrors, setValidationErrors] = useState({});
 
- // Reset function to clear all form fields
+  // Reset function to clear all form fields
   const resetForm = () => {
     setModalData({
       name: "",
@@ -92,7 +92,6 @@ function CreateButton({
 
   // Function to handle form submission
   const handleSubmit = async () => {
-
     const errors = validateForm(modalData);
     setValidationErrors(errors);
 
@@ -114,7 +113,8 @@ function CreateButton({
               .then(() => {
                 dispatch(getAllCategory(currentPage));
                 // setShowModal(false);
-               // resetForm();
+
+                // resetForm();
               })
               .catch(() => console.log("Something went wrong!"))
           : dispatch(updateCategory(productFormData, modalData.id))
@@ -164,7 +164,7 @@ function CreateButton({
                 <div style={{ color: "red", marginTop: "5px" }}>
                   {validationErrors?.name}
                 </div>
-              )} 
+              )}
             </Form.Group>
             <Form.Group controlId="formId">
               <Form.Label>Description</Form.Label>
