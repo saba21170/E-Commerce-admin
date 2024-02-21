@@ -55,6 +55,8 @@ function CreateButton({
       files: undefined,
     }));
 
+    console.log(files,"filessssssssssssssssssss")
+
     //setImagePreview
     setImagePreview(files ? URL.createObjectURL(files) : "");
   };

@@ -11,41 +11,41 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { createProduct, getAllProducts } from "./products.action";
 import { getAllCategory } from "../Categories/category.action";
+import { ENV } from "../../config/config"
 
-function CreateButton() {
-  const [show, setShow] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+function CreateButton({
+  modelType,
+  showModel,
+  setShowModel,
+  formData,
+  setFormData,
+}) {
+  console.log(formData,"formdataaaaa")
+  const [selectedCategory, setSelectedCategory] = useState();
   const [categoriesList, setCategoriesList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(getAllCategory());
-  }, []);
+  // useEffect(() => {
+  //   dispatch(getAllCategory());
+  // }, []);
 
   const { list } = useSelector((state) => state.category);
 
   useEffect(() => {
-    dispatch(getAllProducts());
+    // dispatch(getAllProducts());
+    dispatch(getAllCategory());
   }, []);
 
-  const { products } = useSelector((state) => state.product);
+  // const { products } = useSelector((state) => state.product);
 
   useEffect(() => {
     if (list) {
-      setCategoriesList(list.data);
+      const data = list.data;
+      // setCategoriesList((prevData) => [...prevData, ...data]);
+      setCategoriesList(data);
     }
   }, [list]);
-
-  // State for storing input values
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    featured: "",
-    category: "",
-    price: "",
-    images: null,
-  });
 
   const [validationErrors, setValidationErrors] = useState({});
 
@@ -71,13 +71,13 @@ function CreateButton() {
 
   //Function for storing file
   const handleFileUpload = (e) => {
-    const file = e.target.files;
+    const files = e.target.files;
 
     // Declare the errors variable
     let errors = {};
 
     // Check if a file is selected
-    if (file) {
+    if (files && files.length > 0) {
       // const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
       // const fileExtension = file.name.split(".").pop().toLowerCase();
 
@@ -92,15 +92,18 @@ function CreateButton() {
       //Update formData using a callback
       setFormData((prevData) => ({
         ...prevData,
-        images: file,
+        images: files,
       }));
     }
     setValidationErrors((prevErrors) => ({
       ...prevErrors,
       file: undefined,
     }));
-  };
 
+    //setImagePreview
+    const previews = Array.from(files).map((file) => URL.createObjectURL(file));
+    setImagePreview(previews);
+  };
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -124,12 +127,12 @@ function CreateButton() {
   };
 
   // Function to handle modal show
-  const handleShow = () => setShow(true);
+  // const handleShow = () => setShow(true);
 
   // Function to handle modal close
   const handleClose = () => {
     resetForm();
-    setShow(false);
+    setShowModel(false);
   };
 
   // Function to handle form submission
@@ -160,23 +163,26 @@ function CreateButton() {
   }, [currentPage]);
 
   const onScroll = () => {
-    setCurrentPage((prevData) => prevData + 1);
+    if (list.totalPages !== categoriesList.length) {
+      setCurrentPage((prevData) => prevData + 1);
+    }
   };
+  console.log(formData, "formData formData");
+  console.log(categoriesList, "categoriesList categoriesList");
 
   return (
     <>
-      <Button variant="primary" onClick={handleShow}>
-        Create
-      </Button>
-
       <Modal
-        show={show}
+        show={showModel}
         onHide={handleClose}
         backdrop="static"
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Add Product</Modal.Title>
+          <Modal.Title>
+            {modelType === 1 ? "Create" : modelType === 2 ? "Edit" : "View"}{" "}
+            Product
+          </Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -190,11 +196,11 @@ function CreateButton() {
                 value={formData.title}
                 onChange={handleInputChange}
               />
-              {validationErrors.title && (
+              {/* {validationErrors.title && (
                 <div style={{ color: "red", marginTop: "5px" }}>
                   {validationErrors.title}
                 </div>
-              )}
+              )} */}
             </Form.Group>
             <Form.Group controlId="formId">
               <Form.Label>Description</Form.Label>
@@ -214,25 +220,21 @@ function CreateButton() {
                   }));
                 }}
               />
-              {validationErrors.description && (
+              {/* {validationErrors.description && (
                 <div style={{ color: "red", marginTop: "5px" }}>
                   {validationErrors.description}
                 </div>
-              )}
+              )} */}
             </Form.Group>
-
             <Form.Group controlId="formCategory">
               <Form.Label>Category</Form.Label>
               <Select
                 name="category"
+                placeholder="Select"
                 onMenuScrollToBottom={onScroll}
-                defaultValue={
-                  categoriesList && categoriesList.length > 0
-                    ? categoriesList.filter(
-                        (category) => category._id === selectedCategory
-                      )
-                    : ""
-                }
+                defaultValue={categoriesList.filter(
+                  (category) => category._id === formData.categoryId
+                )}
                 onChange={(selectedOption) => handleCat(selectedOption)}
                 options={
                   categoriesList && categoriesList.length > 0
@@ -243,11 +245,11 @@ function CreateButton() {
                     : ""
                 }
               />
-              {validationErrors.category && (
+              {/* {validationErrors.category && (
                 <div style={{ color: "red", marginTop: "5px" }}>
                   {validationErrors.category}
                 </div>
-              )}
+              )} */}
             </Form.Group>
             <Form.Group controlId="formId">
               <Form.Label>Price</Form.Label>
@@ -274,7 +276,7 @@ function CreateButton() {
                 onChange={handleFileUpload}
                 multiple
               />
-              {imagePreview && (
+              {/* {imagePreview && (
                 <div style={{ marginTop: "10px" }}>
                   <img
                     className="image"
@@ -282,12 +284,26 @@ function CreateButton() {
                     alt="Image Preview"
                   />
                 </div>
-              )}
-              {validationErrors.images && (
+              )} */}
+              <div>
+                {/* Render image previews using map */}
+                {imagePreview && imagePreview
+                  ? imagePreview.map((preview, index) => (
+                      <div key={index} style={{ marginTop: "10px" }}>
+                        <img
+                          className="image"
+                          src={preview}
+                          alt={`Preview ${index}`}
+                        />
+                      </div>
+                    ))
+                  : ""}
+              </div>
+              {/* {validationErrors.images && (
                 <div style={{ color: "red", marginTop: "5px" }}>
                   {validationErrors.images}
                 </div>
-              )}
+              )} */}
             </Form.Group>
             <Form.Group controlId="formFeatured">
               <Form.Label></Form.Label>
@@ -295,21 +311,40 @@ function CreateButton() {
                 type="checkbox"
                 label="Featured"
                 name="featured"
+                checked={formData.featured}
                 id="featuredCheckbox"
                 onChange={handleInputChange}
               />
             </Form.Group>
+
+            {modelType === 3 && formData.images && (
+              <Form.Group controlId="formId">
+                <Form.Label>Image</Form.Label>
+                <div style={{ marginTop: "10px" }}>
+                  <img
+                    className="image"
+                    src={`${ENV.imageURL}/${formData.images}`}
+                    alt="Image"
+                  />
+                </div>
+              </Form.Group>
+            )}
           </Form>
         </Modal.Body>
 
         <Modal.Footer>
-          <Button
-            variant="primary"
-            onClick={handleSubmit}
-            style={{ marginLeft: "auto" }}
-          >
-            Create
-          </Button>
+          {modelType !== 3 ? (
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              style={{ marginLeft: "auto" }}
+            >
+              {modelType === 1 ? "Create" : "Edit"}
+            </Button>
+          ) : (
+            ""
+          )}
+
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>

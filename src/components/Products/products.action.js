@@ -19,14 +19,15 @@ export const createProduct = (addData) => {
   };
 };
 
-export const getAllProducts = () => {
+export const getAllProducts = (page) => {
   return async (dispatch) => {
     try {
-      const response = await fetch(`${ENV.baseURL}products/getAllProducts?page=1`);
-
+      const response = await fetch(
+        `${ENV.baseURL}products/getAllProducts?page=${page}`
+      );
 
       const data = await response.json();
-      console.log(data , "product")
+      console.log(data , "inside action")
       dispatch({
         type: GET_ALL_PRODUCTS,
         payload: data,
