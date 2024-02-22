@@ -8,6 +8,7 @@ import DeleteButton from "./DeleteButton";
 import Pagination from "rc-pagination";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "./products.action";
+import { getAllCategory } from "../Categories/category.action";
 import { FaEye, FaTrash, FaEdit } from "react-icons/fa";
 
 // react-bootstrap components
@@ -29,14 +30,17 @@ function TableList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [modelType, setModelType] = useState(1);
   const [show, setShow] = useState(false);
+  const [categoriesList, setCategoriesList] = useState([]);
   //const [totalPages, setTotalPages] = useState(1);
 
-   // State for storing input values
-   const [formData, setFormData] = useState({
+  // State for storing input values
+  const [formData, setFormData] = useState({
+    id:"",
     title: "",
     description: "",
     featured: "",
     category: "",
+    categoryId: "",
     price: "",
     images: null,
   });
@@ -49,18 +53,30 @@ function TableList() {
 
   useEffect(() => {
     dispatch(getAllProducts(currentPage));
-    //console.log("all products")
   }, [currentPage]);
 
   const { listProducts } = useSelector((state) => state.product);
-
-  console.log(listProducts, "this is product list ####");
 
   useEffect(() => {
     if (listProducts) {
       setProducts(listProducts.data);
     }
   }, [listProducts]);
+
+  useEffect(() => {
+    dispatch(getAllCategory());
+  }, []);
+
+  const category = useSelector((state) => state.category);
+  // console.log(category, "data from parent")
+
+  useEffect(() => {
+    if (category) {
+      const data = category.list;
+      setCategoriesList(data);
+    }
+  }, [category]);
+
 
   //   fetchProducts();
   // }, [currentPage]);
@@ -173,42 +189,63 @@ function TableList() {
                   </thead>
                   <tbody>
                     {products && products
-                      ? products.map((product, index) => (
-
-                        console.log(product,"product dataaaaaa"),
-                          <tr key={product._id}>
-                            <td>{(currentPage - 1) * limit + (index + 1)}</td>
-                            <td>{product.title}</td>
-                            <td>{product.description}</td>
-                            <td>{product.featured ? "Yes" : "No"}</td>
-                            <td>{product.category}</td>
-                            <td>{product.price}</td>
-                            <td>
-                              <FaEye
-                                onClick={() => {
-                                  setModelType(3);
-                                  setShow(true);
-                                  setFormData(product);
+                      ? products.map(
+                          (product, index) => (
+                            console.log(product, "product dataaaaaa"),
+                            (
+                              <tr key={product._id}>
+                                <td>
+                                  {(currentPage - 1) * limit + (index + 1)}
+                                </td>
+                                <td>{product.title}</td>
+                                <td>
+                                  {product.description ? ( <div
+                                dangerouslySetInnerHTML={{
+                                  __html: product.description,
                                 }}
-                              />
-                              <FaEdit
-                                onClick={() => {
-                                  setModelType(2);
-                                  setShow(true);
-                                }}
-                              />
-                              <FaTrash />
-                              {/* <EditButton
+                              />): "N/A"}
+                                
+                                </td>
+                                <td>{product.featured ? "Yes" : "No"}</td>
+                                <td>{product.category}</td>
+                                <td>{product.price}</td>
+                                <td>
+                                  <FaEye
+                                    onClick={() => {
+                                      setModelType(3);
+                                      setShow(true);
+                                      setFormData(product);
+                                    }}
+                                  />
+                                  <FaEdit
+                                  className="edit-icon"
+                                    onClick={() => {
+                                      setModelType(2);
+                                      setFormData({
+                                        ...product,
+                                        id:product._id,
+                                      }
+                                        
+                                        );
+                                      setShow(true);
+                                    }}
+                                  />
+                                  <FaTrash 
+                                  style={{ cursor: "pointer", color: "red" }}
+                                  />
+                                  {/* <EditButton
                                 productId={product._id}
                                 // onEdit={handleEdit}
                               /> */}{" "}
-                              {/* <DeleteButton
+                                  {/* <DeleteButton
                                 productId={product._id}
                                 // onDelete={handleDelete}
                               /> */}
-                            </td>
-                          </tr>
-                        ))
+                                </td>
+                              </tr>
+                            )
+                          )
+                        )
                       : ""}
                   </tbody>
                 </Table>
@@ -228,7 +265,8 @@ function TableList() {
         showModel={show}
         setShowModel={setShow}
         formData={formData}
-        setFormData = {setFormData}
+        setFormData={setFormData}
+        categoriesList={categoriesList}
       />
     </>
   );

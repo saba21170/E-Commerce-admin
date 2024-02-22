@@ -9,9 +9,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { validateForm } from "./validation";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { createProduct, getAllProducts } from "./products.action";
+import { createProduct, getAllProducts, updateProduct } from "./products.action";
 import { getAllCategory } from "../Categories/category.action";
-import { ENV } from "../../config/config"
+import { ENV } from "../../config/config";
 
 function CreateButton({
   modelType,
@@ -19,33 +19,27 @@ function CreateButton({
   setShowModel,
   formData,
   setFormData,
+  categoriesList,
 }) {
-  console.log(formData,"formdataaaaa")
-  const [selectedCategory, setSelectedCategory] = useState();
-  const [categoriesList, setCategoriesList] = useState([]);
+  //console.log(formData,"heyyyyyyyyyyyyyy")
   const [currentPage, setCurrentPage] = useState(1);
-
   const dispatch = useDispatch();
-  // useEffect(() => {
-  //   dispatch(getAllCategory());
-  // }, []);
 
-  const { list } = useSelector((state) => state.category);
-
-  useEffect(() => {
-    // dispatch(getAllProducts());
-    dispatch(getAllCategory());
-  }, []);
+  const categoryListArray = categoriesList?.data;
+  const categoryOptions = categoryListArray?.map((category) => ({
+    label: category.name,
+    value: category._id,
+  }));
 
   // const { products } = useSelector((state) => state.product);
 
-  useEffect(() => {
-    if (list) {
-      const data = list.data;
-      // setCategoriesList((prevData) => [...prevData, ...data]);
-      setCategoriesList(data);
-    }
-  }, [list]);
+  // useEffect(() => {
+  //   if (list) {
+  //     const data = list.data;
+  //     // setCategoriesList((prevData) => [...prevData, ...data]);
+  //     setCategoriesList(data);
+  //   }
+  // }, [list]);
 
   const [validationErrors, setValidationErrors] = useState({});
 
@@ -148,14 +142,26 @@ function CreateButton({
     productFormData.append("description", formData.description);
     productFormData.append("price", formData.price);
     productFormData.append("featured", formData.featured);
-    productFormData.append("category", selectedCategory);
+    productFormData.append("category", formData.category);
 
-    dispatch(createProduct(productFormData));
-    handleClose();
-  };
+    {
+      modelType === 1
+        ? dispatch(createProduct(productFormData))
+            .then(() => {
+              dispatch(getAllProducts(currentPage));
+               handleClose();
+            
+            })
+            .catch(() => console.log("Something went wrong!"))
+        : dispatch(updateProduct(productFormData, formData.id))
+            .then(() => {
+              dispatch(getAllProducts(currentPage));
+              handleClose();
+            })
+            .catch(() => console.log("Something went wrong!"));
+    }
 
-  const handleCat = (option) => {
-    setSelectedCategory(option.value);
+    
   };
 
   useEffect(() => {
@@ -163,12 +169,10 @@ function CreateButton({
   }, [currentPage]);
 
   const onScroll = () => {
-    if (list.totalPages !== categoriesList.length) {
+    if (categoriesList.totalPages !== categoriesList.length) {
       setCurrentPage((prevData) => prevData + 1);
     }
   };
-  console.log(formData, "formData formData");
-  console.log(categoriesList, "categoriesList categoriesList");
 
   return (
     <>
@@ -193,6 +197,7 @@ function CreateButton({
                 type="text"
                 placeholder="Enter Title"
                 name="title"
+                disabled={modelType === 3}
                 value={formData.title}
                 onChange={handleInputChange}
               />
@@ -206,14 +211,14 @@ function CreateButton({
               <Form.Label>Description</Form.Label>
               <CKEditor
                 editor={ClassicEditor}
-                data={formData.description} // Pass the initial data from the state
+                data={formData.description}
+                disabled={modelType === 3}
                 onChange={(event, editor) => {
                   const newData = editor.getData();
                   setFormData((prevData) => ({
                     ...prevData,
                     description: newData,
                   }));
-                  // Clear validation error for the description field
                   setValidationErrors((prevErrors) => ({
                     ...prevErrors,
                     description: undefined,
@@ -229,22 +234,19 @@ function CreateButton({
             <Form.Group controlId="formCategory">
               <Form.Label>Category</Form.Label>
               <Select
+                options={categoryOptions}
+                onMenuScrollToBottom={onScroll}
                 name="category"
                 placeholder="Select"
-                onMenuScrollToBottom={onScroll}
-                defaultValue={categoriesList.filter(
-                  (category) => category._id === formData.categoryId
-                )}
-                onChange={(selectedOption) => handleCat(selectedOption)}
-                options={
-                  categoriesList && categoriesList.length > 0
-                    ? categoriesList.map((category) => ({
-                        value: category._id,
-                        label: category.name,
-                      }))
-                    : ""
+                isDisabled={modelType === 3}
+                onChange={(selectedOption) =>
+                  setFormData({ ...formData, category: selectedOption.value })
                 }
+                defaultValue={categoryOptions?.filter(
+                  (category) => category.value === formData.categoryId
+                )}
               />
+
               {/* {validationErrors.category && (
                 <div style={{ color: "red", marginTop: "5px" }}>
                   {validationErrors.category}
@@ -257,6 +259,7 @@ function CreateButton({
                 type="text"
                 placeholder="Enter Price"
                 name="price"
+                disabled={modelType === 3}
                 value={formData.price}
                 onChange={handleInputChange}
               />
@@ -267,68 +270,63 @@ function CreateButton({
               )}
             </Form.Group>
 
-            <Form.Group controlId="formId">
-              <Form.Label>Image</Form.Label>
-              <Form.Control
-                type="file"
-                placeholder="Enter Title"
-                name="Images"
-                onChange={handleFileUpload}
-                multiple
-              />
-              {/* {imagePreview && (
-                <div style={{ marginTop: "10px" }}>
-                  <img
-                    className="image"
-                    src={imagePreview}
-                    alt="Image Preview"
-                  />
+            {modelType !== 3 && (
+              <Form.Group controlId="formId">
+                <Form.Label>Image</Form.Label>
+                <Form.Control
+                  type="file"
+                  placeholder="Enter Title"
+                  name="Images"
+                  onChange={handleFileUpload}
+                  multiple
+                />
+                <div>
+                  {imagePreview && imagePreview
+                    ? imagePreview.map((preview, index) => (
+                        <div key={index} style={{ marginTop: "10px" }}>
+                          <img
+                            className="image"
+                            src={preview}
+                            alt={`Preview ${index}`}
+                          />
+                        </div>
+                      ))
+                    : ""}
                 </div>
-              )} */}
-              <div>
-                {/* Render image previews using map */}
-                {imagePreview && imagePreview
-                  ? imagePreview.map((preview, index) => (
-                      <div key={index} style={{ marginTop: "10px" }}>
-                        <img
-                          className="image"
-                          src={preview}
-                          alt={`Preview ${index}`}
-                        />
-                      </div>
-                    ))
-                  : ""}
-              </div>
-              {/* {validationErrors.images && (
+                {/* {validationErrors.images && (
                 <div style={{ color: "red", marginTop: "5px" }}>
-                  {validationErrors.images}
-                </div>
-              )} */}
-            </Form.Group>
+                 {validationErrors.images}
+                 </div>
+                )} */}
+              </Form.Group>
+            )}
+
             <Form.Group controlId="formFeatured">
               <Form.Label></Form.Label>
               <Form.Check
                 type="checkbox"
                 label="Featured"
+                disabled={modelType === 3}
                 name="featured"
                 checked={formData.featured}
                 id="featuredCheckbox"
                 onChange={handleInputChange}
               />
             </Form.Group>
-
-            {modelType === 3 && formData.images && (
-              <Form.Group controlId="formId">
-                <Form.Label>Image</Form.Label>
-                <div style={{ marginTop: "10px" }}>
-                  <img
-                    className="image"
-                    src={`${ENV.imageURL}/${formData.images}`}
-                    alt="Image"
-                  />
-                </div>
-              </Form.Group>
-            )}
+            <Form.Group controlId="formId">
+              <Form.Label>Images</Form.Label>
+              {modelType === 3 && formData.images
+                ? formData.images.map((image, index) => (
+                    <div style={{ marginTop: "10px" }}>
+                      <img
+                        className="image"
+                        src={`${ENV.imageURL}/${image}`}
+                        alt="Image"
+                      />
+                    </div>
+                  ))
+                : ""}
+            </Form.Group>
           </Form>
         </Modal.Body>
 
