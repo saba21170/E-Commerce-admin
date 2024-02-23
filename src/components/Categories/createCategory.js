@@ -205,6 +205,7 @@ function CreateButton({
               </div>
             </Form.Group>
 
+
             {modelType !== 2 && (
               <Form.Group controlId="formId">
                 <Form.Label>Image</Form.Label>
@@ -213,11 +214,13 @@ function CreateButton({
                   name="image"
                   onChange={handleFileUpload}
                 />
+
                 {validationErrors?.image && (
                   <div style={{ color: "red", marginTop: "5px" }}>
                     {validationErrors?.image}
                   </div>
                 )}
+
 
                 {modelType === 1 && imagePreview && (
                   <div style={{ marginTop: "10px" }}>

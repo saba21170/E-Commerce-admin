@@ -1,5 +1,5 @@
 import { ENV } from "../../config/config";
-import { ADD_PRODUCT, GET_ALL_PRODUCTS,UPDATE_PRODUCT } from "../../redux/types";
+import { ADD_PRODUCT, GET_ALL_PRODUCTS,UPDATE_PRODUCT,DELETE_PRODUCT} from "../../redux/types";
 
 export const createProduct = (addData) => {
   return async (dispatch) => {
@@ -37,12 +37,12 @@ export const getAllProducts = (page) => {
 };
 
 export const updateProduct = (update, id) =>{
-  console.log(id ,"product id from")
+  //console.log(update ,"product id from")
   return async (dispatch) =>{
     try{
       console.log(`${ENV.baseURL}products/update/${id}`, "URL")
       const response = await fetch(`${ENV.baseURL}products/update/${id}`, {
-        method: "PATCH",
+        method: "PUT",
         body: update,
       });
       const data = await response.json();
@@ -58,3 +58,26 @@ export const updateProduct = (update, id) =>{
     }
   }
 }
+
+
+export const deleteProduct = (id) => {
+
+  console.log(id , "deleted product id")
+  return async (dispatch) => {
+    try {
+      const response = await fetch(
+        `${ENV.baseURL}products/delete/${id}`,
+        {
+          method: "PUT",
+        }
+      );
+      const data = await response.json();
+      dispatch({
+        type: DELETE_PRODUCT,
+        payload: data,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};

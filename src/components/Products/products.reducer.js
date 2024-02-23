@@ -1,4 +1,4 @@
-import { ADD_PRODUCT, GET_ALL_PRODUCTS,UPDATE_PRODUCT } from "../../redux/types";
+import { ADD_PRODUCT, GET_ALL_PRODUCTS,UPDATE_PRODUCT,DELETE_PRODUCT } from "../../redux/types";
 
 const productReducer = (state = {}, action) => {
   switch (action.type) {
@@ -16,6 +16,11 @@ const productReducer = (state = {}, action) => {
         return {
           ...state,
           updateProduct: action.payload,
+        };
+        case DELETE_PRODUCT:
+        return {
+          ...state,
+          deleteProduct: action.payload,
         };
 
     default:

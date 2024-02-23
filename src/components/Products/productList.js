@@ -35,7 +35,7 @@ function TableList() {
 
   // State for storing input values
   const [formData, setFormData] = useState({
-    id:"",
+    id: "",
     title: "",
     description: "",
     featured: "",
@@ -76,71 +76,6 @@ function TableList() {
       setCategoriesList(data);
     }
   }, [category]);
-
-
-  //   fetchProducts();
-  // }, [currentPage]);
-
-  // const handleEdit = async (productId, updatedData) => {
-  //   try {
-  //     // Make the API call to update the product
-  //     const response = await axios.patch(
-  //       `http://localhost:3002/products/update/${productId}`,
-  //       updatedData
-  //     );
-
-  //     // Check if the update was successful
-  //     if (response.data.message === "SUCCESS") {
-  //       console.log("Product updated successfully!");
-  //       // Fetch the updated product list or update the state as needed
-  //       const updatedProducts = await fetchUpdatedProducts();
-  //       setProducts(updatedProducts);
-  //     } else {
-  //       console.error("Failed to update product:", response.data.description);
-
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating product:", error.message);
-  //   }
-  // };
-
-  // const fetchUpdatedProducts = async () => {
-  //   try {
-  //     const response = await axios.get("http://localhost:3002/products/getAllProducts");
-
-  //     if (response.data.message === "SUCCESS") {
-  //       return response.data.data;
-  //     } else {
-  //       console.error("Failed to fetch updated products:", response.data.description);
-  //       return [];
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching updated products:", error.message);
-  //     return [];
-  //   }
-  // };
-  // const handleDelete = async (productId) => {
-  //   try {
-  //     console.log("Deleting product with ID:", productId);
-
-  //     const response = await axios.patch(`http://localhost:3002/products/delete/${productId}`);
-  //     console.log("Delete response:", response.data);
-
-  //     if (response.data.message === "Product deleted") {
-  //       setProducts((prevProducts) => {
-  //         console.log("Previous State:", prevProducts);
-  //         const newProducts = prevProducts.filter((product) => product._id !== productId);
-  //         console.log("New State:", newProducts);
-  //         return newProducts;
-  //       });
-  //       console.log("Product deleted successfully");
-  //     } else {
-  //       console.error("Failed to delete product:", response.data.description);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deleting product:", error.message);
-  //   }
-  // };
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -199,12 +134,15 @@ function TableList() {
                                 </td>
                                 <td>{product.title}</td>
                                 <td>
-                                  {product.description ? ( <div
-                                dangerouslySetInnerHTML={{
-                                  __html: product.description,
-                                }}
-                              />): "N/A"}
-                                
+                                  {product.description ? (
+                                    <div
+                                      dangerouslySetInnerHTML={{
+                                        __html: product.description,
+                                      }}
+                                    />
+                                  ) : (
+                                    "N/A"
+                                  )}
                                 </td>
                                 <td>{product.featured ? "Yes" : "No"}</td>
                                 <td>{product.category}</td>
@@ -218,29 +156,20 @@ function TableList() {
                                     }}
                                   />
                                   <FaEdit
-                                  className="edit-icon"
+                                    className="edit-icon"
                                     onClick={() => {
                                       setModelType(2);
                                       setFormData({
                                         ...product,
-                                        id:product._id,
-                                      }
-                                        
-                                        );
+                                        id: product._id,
+                                      });
                                       setShow(true);
                                     }}
                                   />
-                                  <FaTrash 
-                                  style={{ cursor: "pointer", color: "red" }}
+                                  <DeleteButton
+                                    productId={product._id}
+                                    currentPage={currentPage}
                                   />
-                                  {/* <EditButton
-                                productId={product._id}
-                                // onEdit={handleEdit}
-                              /> */}{" "}
-                                  {/* <DeleteButton
-                                productId={product._id}
-                                // onDelete={handleDelete}
-                              /> */}
                                 </td>
                               </tr>
                             )

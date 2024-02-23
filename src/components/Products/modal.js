@@ -9,7 +9,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { validateForm } from "./validation";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { createProduct, getAllProducts, updateProduct } from "./products.action";
+import {
+  createProduct,
+  getAllProducts,
+  updateProduct,
+} from "./products.action";
 import { getAllCategory } from "../Categories/category.action";
 import { ENV } from "../../config/config";
 
@@ -21,7 +25,6 @@ function CreateButton({
   setFormData,
   categoriesList,
 }) {
-  //console.log(formData,"heyyyyyyyyyyyyyy")
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useDispatch();
 
@@ -31,19 +34,8 @@ function CreateButton({
     value: category._id,
   }));
 
-  // const { products } = useSelector((state) => state.product);
-
-  // useEffect(() => {
-  //   if (list) {
-  //     const data = list.data;
-  //     // setCategoriesList((prevData) => [...prevData, ...data]);
-  //     setCategoriesList(data);
-  //   }
-  // }, [list]);
-
   const [validationErrors, setValidationErrors] = useState({});
 
-  // New state for image preview
   const [imagePreview, setImagePreview] = useState("");
 
   // Reset function to clear all form fields
@@ -142,15 +134,14 @@ function CreateButton({
     productFormData.append("description", formData.description);
     productFormData.append("price", formData.price);
     productFormData.append("featured", formData.featured);
-    productFormData.append("category", formData.category);
+    productFormData.append("category", formData.categoryId);
 
     {
       modelType === 1
         ? dispatch(createProduct(productFormData))
             .then(() => {
               dispatch(getAllProducts(currentPage));
-               handleClose();
-            
+              handleClose();
             })
             .catch(() => console.log("Something went wrong!"))
         : dispatch(updateProduct(productFormData, formData.id))
@@ -158,10 +149,8 @@ function CreateButton({
               dispatch(getAllProducts(currentPage));
               handleClose();
             })
-            .catch(() => console.log("Something went wrong!"));
+            .catch(() => console.log("Something went wrong to update!"));
     }
-
-    
   };
 
   useEffect(() => {
@@ -240,7 +229,7 @@ function CreateButton({
                 placeholder="Select"
                 isDisabled={modelType === 3}
                 onChange={(selectedOption) =>
-                  setFormData({ ...formData, category: selectedOption.value })
+                  setFormData({ ...formData, categoryId: selectedOption.value })
                 }
                 defaultValue={categoryOptions?.filter(
                   (category) => category.value === formData.categoryId
@@ -275,29 +264,22 @@ function CreateButton({
                 <Form.Label>Image</Form.Label>
                 <Form.Control
                   type="file"
-                  placeholder="Enter Title"
-                  name="Images"
+                  name="images"
                   onChange={handleFileUpload}
                   multiple
                 />
-                <div>
-                  {imagePreview && imagePreview
-                    ? imagePreview.map((preview, index) => (
-                        <div key={index} style={{ marginTop: "10px" }}>
-                          <img
-                            className="image"
-                            src={preview}
-                            alt={`Preview ${index}`}
-                          />
-                        </div>
-                      ))
-                    : ""}
-                </div>
-                {/* {validationErrors.images && (
-                <div style={{ color: "red", marginTop: "5px" }}>
-                 {validationErrors.images}
-                 </div>
-                )} */}
+
+                {modelType === 1 && imagePreview
+                  ? imagePreview.map((preview, index) => (
+                      <div key={index} style={{ marginTop: "10px" }}>
+                        <img
+                          className="image"
+                          src={preview}
+                          alt={`Preview ${index}`}
+                        />
+                      </div>
+                    ))
+                  : ""}
               </Form.Group>
             )}
 
@@ -313,20 +295,33 @@ function CreateButton({
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Form.Group controlId="formId">
-              <Form.Label>Images</Form.Label>
-              {modelType === 3 && formData.images
-                ? formData.images.map((image, index) => (
-                    <div style={{ marginTop: "10px" }}>
-                      <img
-                        className="image"
-                        src={`${ENV.imageURL}/${image}`}
-                        alt="Image"
-                      />
-                    </div>
-                  ))
-                : ""}
-            </Form.Group>
+
+            {modelType !== 1 && formData.images && (
+              <Form.Group controlId="formId">
+                <Form.Label>Images</Form.Label>
+                <div style={{ marginTop: "10px" }}>
+                  {modelType === 2 && imagePreview
+                    ? imagePreview.map((preview, index) => (
+                        <div key={index} style={{ marginTop: "10px" }}>
+                          <img
+                            className="image"
+                            src={preview}
+                            alt={`Preview ${index}`}
+                          />
+                        </div>
+                      ))
+                    : formData.images.map((image, index) => (
+                        <div style={{ marginTop: "10px" }}>
+                          <img
+                            className="image"
+                            src={`${ENV.imageURL}/${image}`}
+                            alt="Image"
+                          />
+                        </div>
+                      ))}
+                </div>
+              </Form.Group>
+            )}
           </Form>
         </Modal.Body>
 
