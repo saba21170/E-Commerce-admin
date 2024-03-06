@@ -11,7 +11,6 @@ export const getAllCategory = (page, name, status) => {
   return async (dispatch) => {
     let url = `${ENV.baseURL}categories/list?page=${page}`;
 
-
    if (!page) {
       url = `${ENV.baseURL}categories/list`;
      }

@@ -18,27 +18,29 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import  {createRoot}  from "react-dom/client";
-
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/css/animate.min.css";
 import "./assets/scss/light-bootstrap-dashboard-react.scss?v=2.0.0";
 import "./assets/css/demo.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { Provider } from "react-redux";
+import Login from "./components/Login/login"
 import store from "./redux/store";
-
 import AdminLayout from "layouts/Admin.js";
 
 const root = createRoot(document.getElementById("root"));
+const token = false;
 
 root.render(
   <Provider store={store}>
     <BrowserRouter>
       <Switch>
-        <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
-        <Redirect from="/" to="/admin/dashboard" />
+        <Route path="/admin">
+          {token ? <AdminLayout/> : <Redirect to="/login" />}
+        </Route>
+        <Route path="/login" component={Login}/>
+        <Redirect from="/" to={token ? "/admin/dashboard": "/login"} />
       </Switch>
     </BrowserRouter>
   </Provider>

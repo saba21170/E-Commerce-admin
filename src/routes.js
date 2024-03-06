@@ -23,9 +23,9 @@ import Icons from "views/Icons.js";
 import Maps from "views/Maps.js";
 import Notifications from "views/Notifications.js";
 import Upgrade from "views/Upgrade.js";
-import Login from "./components/Login/login";
 import Product from "./components/Products/productList";
 import Category from "./components/Categories/categoriesList"
+
 
 const dashboardRoutes = [
   {
@@ -41,12 +41,6 @@ const dashboardRoutes = [
     name: "Dashboard",
     icon: "nc-icon nc-chart-pie-35",
     component: Dashboard,
-    layout: "/admin"
-  },
-  {
-    path: "/login",
-    name: "Login",
-    component: Login,
     layout: "/admin"
   },
   {
