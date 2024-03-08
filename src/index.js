@@ -24,15 +24,17 @@ import "./assets/css/animate.min.css";
 import "./assets/scss/light-bootstrap-dashboard-react.scss?v=2.0.0";
 import "./assets/css/demo.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import Login from "./components/Login/login"
 import store from "./redux/store";
 import AdminLayout from "layouts/Admin.js";
 
+
 const root = createRoot(document.getElementById("root"));
-const token = false;
+ const token = false;
 
 root.render(
+
   <Provider store={store}>
     <BrowserRouter>
       <Switch>
@@ -45,3 +47,5 @@ root.render(
     </BrowserRouter>
   </Provider>
 );
+
+

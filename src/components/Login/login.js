@@ -42,13 +42,8 @@ function Login() {
     if (!Object.values(error).some((err) => err)) {
       dispatch(loginAdmin(data));
       resetForm();
-      // {message?.status === false && (
-        
-      // )
-      // }
     }
   };
-
   return (
     <div className="form-container">
       <Form className="form">
@@ -61,11 +56,6 @@ function Login() {
             onChange={handleInputChange}
             value={data.email}
           />
-          {message && message.emailError && (
-            <div style={{ color: "red", marginTop: "5px" }}>
-              {message.emailError}
-            </div>
-          )}
 
           {validationErrors?.email && (
             <div style={{ color: "red", marginTop: "5px" }}>
@@ -83,9 +73,13 @@ function Login() {
             value={data.password}
           />
 
-          {message && message.passwordError && (
+          {message?.emailError ? (
             <div style={{ color: "red", marginTop: "5px" }}>
-              {message.passwordError}
+              {message.emailError}
+            </div>
+          ) : (
+            <div style={{ color: "red", marginTop: "5px" }}>
+              {message?.passwordError}
             </div>
           )}
 
@@ -108,5 +102,6 @@ function Login() {
     </div>
   );
 }
+
 
 export default Login;
