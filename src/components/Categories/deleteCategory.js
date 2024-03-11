@@ -3,24 +3,22 @@ import React, { useState } from "react";
 import { Button } from "react-bootstrap";
 import { Modal, Form } from "react-bootstrap";
 import { FaTrash } from "react-icons/fa";
-import { useDispatch } from "react-redux";
-import { deleteProduct, getAllProducts } from "./products.action";
+import { useSelector, useDispatch } from "react-redux";
+import { getAllCategory, deleteCategory } from "./category.action";
 
-const DeleteButton = ({ productId, currentPage }) => {
+const DeleteButton = ({ categoryId, currentPage }) => {
   const [showModal, setShowModal] = useState(false);
-
-  const dispatch = useDispatch();
 
   const handleShow = () => setShowModal(true);
   const handleClose = () => setShowModal(false);
 
+  const dispatch = useDispatch();
+
   const handleDelete = () => {
-    dispatch(deleteProduct(productId))
-      .then(() => {
-        dispatch(getAllProducts(currentPage));
-        
-      })
-      .catch(() => console.log("something went wrong!"));
+    dispatch(deleteCategory(categoryId));
+    dispatch(getAllCategory(currentPage));
+
+    handleClose();
   };
 
   return (
@@ -33,9 +31,9 @@ const DeleteButton = ({ productId, currentPage }) => {
 
       <Modal show={showModal} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Delete Product</Modal.Title>
+          <Modal.Title>Delete Category</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Are you sure you want to delete this product?</Modal.Body>
+        <Modal.Body>Are you sure you want to delete this category?</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close

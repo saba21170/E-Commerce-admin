@@ -8,49 +8,34 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { validateForm } from "./validation";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createProduct,
+  getAllProducts,
+  updateProduct,
+} from "./products.action";
+import { getAllCategory } from "../Categories/category.action";
+import { ENV } from "../../config/config";
 
-function CreateButton() {
-  const [show, setShow] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+function CreateButton({
+  modelType,
+  showModel,
+  setShowModel,
+  formData,
+  setFormData,
+  categoriesList,
+}) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const dispatch = useDispatch();
 
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3001/categories/list"
-        );
-        if (response.data.message === "SUCCESS") {
-          setCategories(response.data.data);
-          // console.log(response.data.data);
-        } else {
-          console.error(
-            "Failed to fetch categories:",
-            response.data.description
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error.message);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  // State for storing input values
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    featured: "",
-    category: "",
-    price: "",
-    images: null,
-  });
+  const categoryListArray = categoriesList?.data;
+  const categoryOptions = categoryListArray?.map((category) => ({
+    label: category.name,
+    value: category._id,
+  }));
 
   const [validationErrors, setValidationErrors] = useState({});
 
-  // New state for image preview
   const [imagePreview, setImagePreview] = useState("");
 
   // Reset function to clear all form fields
@@ -72,13 +57,13 @@ function CreateButton() {
 
   //Function for storing file
   const handleFileUpload = (e) => {
-    const file = e.target.files ;
+    const files = e.target.files;
 
     // Declare the errors variable
     let errors = {};
 
     // Check if a file is selected
-    if (file) {
+    if (files && files.length > 0) {
       // const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
       // const fileExtension = file.name.split(".").pop().toLowerCase();
 
@@ -93,15 +78,18 @@ function CreateButton() {
       //Update formData using a callback
       setFormData((prevData) => ({
         ...prevData,
-        images: file,
+        images: files,
       }));
     }
     setValidationErrors((prevErrors) => ({
       ...prevErrors,
       file: undefined,
     }));
-  };
 
+    //setImagePreview
+    const previews = Array.from(files).map((file) => URL.createObjectURL(file));
+    setImagePreview(previews);
+  };
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -111,7 +99,6 @@ function CreateButton() {
         category: selectedCategory.value,
       }));
     } else {
-      // Handle other input changes as before
       const newValue = type === "checkbox" ? checked : value;
       setFormData((prevData) => ({
         ...prevData,
@@ -119,100 +106,76 @@ function CreateButton() {
       }));
     }
     // Clear validation error for the corresponding field
-    setValidationErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: undefined,
-    }));
+    // setValidationErrors((prevErrors) => ({
+    //   ...prevErrors,
+    //   [name]: undefined,
+    // }));
   };
 
   // Function to handle modal show
-  const handleShow = () => setShow(true);
+  // const handleShow = () => setShow(true);
 
   // Function to handle modal close
   const handleClose = () => {
     resetForm();
-    setShow(false);
+    setShowModel(false);
   };
 
   // Function to handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const errors = validateForm(formData, selectedCategory);
-    //console.log(errors, "errors")
-    setValidationErrors(errors);
+  const handleSubmit = async () => {
+    const { images } = formData;
 
-    if (Object.keys(errors).length === 0) {
-      try {
-        console.log("yes");
-        await createProduct(); // Make the API call
+    const productFormData = new FormData();
 
-        resetForm();
-        handleClose();
-      } catch (error) {
-        // Log the error message or display it to the user
-        console.error("Error creating product:", error.message);
-      }
+    for (let index = 0; index < images.length; index++) {
+      productFormData.append("images", images[index]);
+    }
+    productFormData.append("title", formData.title);
+    productFormData.append("description", formData.description);
+    productFormData.append("price", formData.price);
+    productFormData.append("featured", formData.featured);
+    productFormData.append("category", formData.categoryId);
+
+    {
+      modelType === 1
+        ? dispatch(createProduct(productFormData))
+            .then(() => {
+              dispatch(getAllProducts(currentPage));
+              handleClose();
+            })
+            .catch(() => console.log("Something went wrong!"))
+        : dispatch(updateProduct(productFormData, formData.id))
+            .then(() => {
+              dispatch(getAllProducts(currentPage));
+              handleClose();
+            })
+            .catch(() => console.log("Something went wrong to update!"));
     }
   };
 
-  // Function for creating products
-  const createProduct = async () => {
-    try {
-      const {images} = formData
+  useEffect(() => {
+    dispatch(getAllCategory(currentPage));
+  }, [currentPage]);
 
-
-      const productFormData = new FormData();
-
-      for (let index = 0; index < images.length; index++) {
-        productFormData.append("images", images[index]);
-      }
-      productFormData.append("title", formData.title);
-      productFormData.append("description", formData.description);
-      productFormData.append("price", formData.price);
-      productFormData.append("featured", formData.featured);
-      productFormData.append("category", selectedCategory);
-
-
-      // // Check if a category is selected
-      if (!selectedCategory) {
-        console.error("Category is required");
-        return;
-      }
-      const response = await axios.post("http://localhost:3001/products/add", 
-      productFormData
-      );
-      
-
-      if (response.data.message === "SUCCESS") {
-      } else {
-        console.error("Failed to create product:", response.data.description);
-      }
-    } catch (error) {
-      console.log(error);
-
-      console.error("Error creating product:", error.message);
-      throw error;
+  const onScroll = () => {
+    if (categoriesList.totalPages !== categoriesList.length) {
+      setCurrentPage((prevData) => prevData + 1);
     }
-  };
-
-  const handleCat = (option) => {
-    setSelectedCategory(option.value);
   };
 
   return (
     <>
-      <Button variant="primary" onClick={handleShow}>
-        Create
-      </Button>
-
       <Modal
-        show={show}
+        show={showModel}
         onHide={handleClose}
         backdrop="static"
         keyboard={false}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Add Product</Modal.Title>
+          <Modal.Title>
+            {modelType === 1 ? "Create" : modelType === 2 ? "Edit" : "View"}{" "}
+            Product
+          </Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -223,58 +186,61 @@ function CreateButton() {
                 type="text"
                 placeholder="Enter Title"
                 name="title"
+                disabled={modelType === 3}
                 value={formData.title}
                 onChange={handleInputChange}
               />
-              {validationErrors.title && (
+              {/* {validationErrors.title && (
                 <div style={{ color: "red", marginTop: "5px" }}>
                   {validationErrors.title}
                 </div>
-              )}
+              )} */}
             </Form.Group>
             <Form.Group controlId="formId">
               <Form.Label>Description</Form.Label>
               <CKEditor
                 editor={ClassicEditor}
-                data={formData.description} // Pass the initial data from the state
+                data={formData.description}
+                disabled={modelType === 3}
                 onChange={(event, editor) => {
                   const newData = editor.getData();
                   setFormData((prevData) => ({
                     ...prevData,
                     description: newData,
                   }));
-                  // Clear validation error for the description field
                   setValidationErrors((prevErrors) => ({
                     ...prevErrors,
                     description: undefined,
                   }));
                 }}
               />
-              {validationErrors.description && (
+              {/* {validationErrors.description && (
                 <div style={{ color: "red", marginTop: "5px" }}>
                   {validationErrors.description}
                 </div>
-              )}
+              )} */}
             </Form.Group>
-
             <Form.Group controlId="formCategory">
               <Form.Label>Category</Form.Label>
               <Select
+                options={categoryOptions}
+                onMenuScrollToBottom={onScroll}
                 name="category"
-                defaultValue={categories.filter(
-                  (category) => category._id === selectedCategory
+                placeholder="Select"
+                isDisabled={modelType === 3}
+                onChange={(selectedOption) =>
+                  setFormData({ ...formData, categoryId: selectedOption.value })
+                }
+                defaultValue={categoryOptions?.filter(
+                  (category) => category.value === formData.categoryId
                 )}
-                onChange={(selectedOption) => handleCat(selectedOption)}
-                options={categories.map((category) => ({
-                  value: category._id,
-                  label: category.name,
-                }))}
               />
-              {validationErrors.category && (
+
+              {/* {validationErrors.category && (
                 <div style={{ color: "red", marginTop: "5px" }}>
                   {validationErrors.category}
                 </div>
-              )}
+              )} */}
             </Form.Group>
             <Form.Group controlId="formId">
               <Form.Label>Price</Form.Label>
@@ -282,6 +248,7 @@ function CreateButton() {
                 type="text"
                 placeholder="Enter Price"
                 name="price"
+                disabled={modelType === 3}
                 value={formData.price}
                 onChange={handleInputChange}
               />
@@ -292,51 +259,85 @@ function CreateButton() {
               )}
             </Form.Group>
 
-            <Form.Group controlId="formId">
-              <Form.Label>Image</Form.Label>
-              <Form.Control
-                type="file"
-                placeholder="Enter Title"
-                name="Images"
-                onChange={handleFileUpload}
-                multiple
-              />
-              {imagePreview && (
-                <div style={{ marginTop: "10px" }}>
-                  <img
-                    className="image"
-                    src={imagePreview}
-                    alt="Image Preview"
-                  />
-                </div>
-              )}
-              {validationErrors.images && (
-                <div style={{ color: "red", marginTop: "5px" }}>
-                  {validationErrors.images}
-                </div>
-              )}
-            </Form.Group>
+            {modelType !== 3 && (
+              <Form.Group controlId="formId">
+                <Form.Label>Image</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="images"
+                  onChange={handleFileUpload}
+                  multiple
+                />
+
+                {modelType === 1 && imagePreview
+                  ? imagePreview.map((preview, index) => (
+                      <div key={index} style={{ marginTop: "10px" }}>
+                        <img
+                          className="image"
+                          src={preview}
+                          alt={`Preview ${index}`}
+                        />
+                      </div>
+                    ))
+                  : ""}
+              </Form.Group>
+            )}
+
             <Form.Group controlId="formFeatured">
               <Form.Label></Form.Label>
               <Form.Check
                 type="checkbox"
                 label="Featured"
+                disabled={modelType === 3}
                 name="featured"
+                checked={formData.featured}
                 id="featuredCheckbox"
                 onChange={handleInputChange}
               />
             </Form.Group>
+
+            {modelType !== 1 && formData.images && (
+              <Form.Group controlId="formId">
+                <Form.Label>Images</Form.Label>
+                <div style={{ marginTop: "10px" }}>
+                  {modelType === 2 && imagePreview
+                    ? imagePreview.map((preview, index) => (
+                        <div key={index} style={{ marginTop: "10px" }}>
+                          <img
+                            className="image"
+                            src={preview}
+                            alt={`Preview ${index}`}
+                          />
+                        </div>
+                      ))
+                    : formData.images.map((image, index) => (
+                        <div style={{ marginTop: "10px" }}>
+                          <img
+                            className="image"
+                            src={`${ENV.imageURL}/${image}`}
+                            alt="Image"
+                          />
+                        </div>
+                      ))}
+                </div>
+              </Form.Group>
+            )}
           </Form>
         </Modal.Body>
 
         <Modal.Footer>
-          <Button
-            variant="primary"
-            onClick={handleSubmit}
-            style={{ marginLeft: "auto" }}
-          >
-            Create
-          </Button>
+          {modelType !== 3 ? (
+            <Button
+              variant="primary"
+              onClick={handleSubmit}
+              style={{ marginLeft: "auto" }}
+            >
+              {modelType === 1 ? "Create" : "Edit"}
+            </Button>
+          ) : (
+            ""
+          )}
+
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
