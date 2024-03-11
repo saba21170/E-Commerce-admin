@@ -9,10 +9,10 @@ import { failedCategory, clearError } from "../../redux/reduxError/failed.action
 export const getAllCategory = (page, name, status) => {
 
   return async (dispatch) => {
-    let url = `${ENV.baseURL}categories/list?page=${page}`;
+    let url = `${ENV.baseURL}categories/listCategories?page=${page}`;
 
    if (!page) {
-      url = `${ENV.baseURL}categories/list`;
+      url = `${ENV.baseURL}categories/listCategories`;
      }
 
     else if (name && status) {
@@ -40,7 +40,7 @@ export const createCategory = (modalBody) => {
   return async (dispatch) => {
     dispatch(clearError());
     try {
-      const response = await fetch(`${ENV.baseURL}categories/add`, {
+      const response = await fetch(`${ENV.baseURL}categories/addCategory`, {
         method: "POST",
         // headers: {
         //   'Content-Type': "application/json"
@@ -67,7 +67,7 @@ export const createCategory = (modalBody) => {
 export const updateCategory = (update, categoryId) => {
   return async (dispatch) => {
     try {
-      const response = await fetch(`${ENV.baseURL}categories/category/${categoryId}`, {
+      const response = await fetch(`${ENV.baseURL}categories/update/${categoryId}`, {
         method: "PUT",
         body: update,
       });

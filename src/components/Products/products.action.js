@@ -4,7 +4,7 @@ import { ADD_PRODUCT, GET_ALL_PRODUCTS,UPDATE_PRODUCT,DELETE_PRODUCT} from "../.
 export const createProduct = (addData) => {
   return async (dispatch) => {
     try {
-      const response = await fetch(`${ENV.baseURL}products/add`, {
+      const response = await fetch(`${ENV.baseURL}products/addProduct`, {
         method: "POST",
         body: addData,
       });
