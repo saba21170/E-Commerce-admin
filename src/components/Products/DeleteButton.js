@@ -11,7 +11,7 @@ const DeleteButton = ({ productId, onDelete }) => {
   const handleClose = () => setShowModal(false);
 
   const handleDelete = () => {
-    // Implement your delete logic here, e.g., make an API call
+  
     onDelete(productId);
     handleClose();
   };

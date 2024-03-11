@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
 import Select from "react-select";
 import "./product.css";
@@ -10,19 +10,42 @@ import { validateForm } from "./validation";
 import axios from "axios";
 
 function CreateButton() {
-  console.log("Rendering CreateButton");
   const [show, setShow] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/categories/list"
+        );
+        if (response.data.message === "SUCCESS") {
+          setCategories(response.data.data);
+          // console.log(response.data.data);
+        } else {
+          console.error(
+            "Failed to fetch categories:",
+            response.data.description
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error.message);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // State for storing input values
   const [formData, setFormData] = useState({
-    id: "",
     title: "",
     description: "",
     featured: "",
     category: "",
     price: "",
-    images: "",
-    
+    images: null,
   });
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -33,14 +56,12 @@ function CreateButton() {
   // Reset function to clear all form fields
   const resetForm = () => {
     setFormData({
-      id: "",
       title: "",
       description: "",
       featured: false,
-
+      category: "",
       price: "",
-      images: "",
-    
+      images: null,
     });
 
     setImagePreview("");
@@ -49,85 +70,54 @@ function CreateButton() {
     setValidationErrors({});
   };
 
-  // const options = [
-  //   { value: "category1", label: "Category 1" },
-  //   { value: "category2", label: "Category 2" },
-  //   { value: "category3", label: "Category 3" },
-  //   // Add more options as needed
-  // ];
-
-  // const handleCategoryChange = (selectedOption) => {
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     category: selectedOption ? selectedOption.value : "",
-  //   }));
-  //   // Clear validation error for the category field
-  //   setValidationErrors((prevErrors) => ({
-  //     ...prevErrors,
-  //     category: undefined,
-  //   }));
-  // };
-
   //Function for storing file
   const handleFileUpload = (e) => {
-    const file = e.target.files && e.target.files[0];
+    const file = e.target.files ;
 
     // Declare the errors variable
     let errors = {};
 
     // Check if a file is selected
     if (file) {
-      const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
-      const fileExtension = file.name.split(".").pop().toLowerCase();
+      // const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
+      // const fileExtension = file.name.split(".").pop().toLowerCase();
 
       // Check if the selected file has a valid extension
-      if (!allowedExtensions.includes(fileExtension)) {
-        setValidationErrors((prevErrors) => ({
-          ...prevErrors,
-          images: "Only JPG, JPEG, PNG, and SVG formats are allowed",
-        }));
-        return; // Exit the function early if the extension is not allowed
-      }
-      if (!formData.images) {
-        errors.images = "Image is required";
-      } else {
-        const allowedExtensions = ["jpg", "jpeg", "png", "svg"];
-        const fileExtension = formData.images.name
-          .split(".")
-          .pop()
-          .toLowerCase();
-        if (!allowedExtensions.includes(fileExtension)) {
-          errors.images = "Only JPG, JPEG, PNG, and SVG formats are allowed";
-        }
-      }
+      // if (!allowedExtensions.includes(fileExtension)) {
+      //   setValidationErrors((prevErrors) => ({
+      //     ...prevErrors,
+      //     images: "Only JPG, JPEG, PNG, and SVG formats are allowed",
+      //   }));
+      //   return; // Exit the function early if the extension is not allowed
+      // }
+      //Update formData using a callback
+      setFormData((prevData) => ({
+        ...prevData,
+        images: file,
+      }));
     }
-    setFormData((prevData) => ({
-      ...prevData,
-      images: file,
-      icon: URL.createObjectURL(file),
-    }));
-
-    //setImagePreview
-    setImagePreview(URL.createObjectURL(file));
-
-    // Clear validation error for the image field
     setValidationErrors((prevErrors) => ({
       ...prevErrors,
-      images: undefined,
+      file: undefined,
     }));
   };
 
-  // Function to handle changes in input fields
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    // Handle checkbox separately
-    const newValue = type === "checkbox" ? checked : value;
 
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-
+    if (name === "category" && selectedCategory) {
+      setFormData((prevData) => ({
+        ...prevData,
+        category: selectedCategory.value,
+      }));
+    } else {
+      // Handle other input changes as before
+      const newValue = type === "checkbox" ? checked : value;
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: newValue,
+      }));
+    }
     // Clear validation error for the corresponding field
     setValidationErrors((prevErrors) => ({
       ...prevErrors,
@@ -147,13 +137,13 @@ function CreateButton() {
   // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = validateForm(formData);
+    const errors = validateForm(formData, selectedCategory);
+    //console.log(errors, "errors")
     setValidationErrors(errors);
 
     if (Object.keys(errors).length === 0) {
       try {
-        
-
+        console.log("yes");
         await createProduct(); // Make the API call
 
         resetForm();
@@ -168,24 +158,45 @@ function CreateButton() {
   // Function for creating products
   const createProduct = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:3001/products/add",
-        formData
+      const {images} = formData
+
+
+      const productFormData = new FormData();
+
+      for (let index = 0; index < images.length; index++) {
+        productFormData.append("images", images[index]);
+      }
+      productFormData.append("title", formData.title);
+      productFormData.append("description", formData.description);
+      productFormData.append("price", formData.price);
+      productFormData.append("featured", formData.featured);
+      productFormData.append("category", selectedCategory);
+
+
+      // // Check if a category is selected
+      if (!selectedCategory) {
+        console.error("Category is required");
+        return;
+      }
+      const response = await axios.post("http://localhost:3001/products/add", 
+      productFormData
       );
-      console.log("Rendering createProduct");
-      console.log(response.data); // Log the API response
-  
-      // Check if the response indicates success
+      
+
       if (response.data.message === "SUCCESS") {
-        // Add any additional logic if needed
       } else {
         console.error("Failed to create product:", response.data.description);
       }
     } catch (error) {
-      // Log the error message or display it to the user
+      console.log(error);
+
       console.error("Error creating product:", error.message);
-      throw error; // Re-throw the error to be caught in the handleSubmit function
+      throw error;
     }
+  };
+
+  const handleCat = (option) => {
+    setSelectedCategory(option.value);
   };
 
   return (
@@ -246,21 +257,25 @@ function CreateButton() {
               )}
             </Form.Group>
 
-            {/* <Form.Group controlId="formCategory">
+            <Form.Group controlId="formCategory">
               <Form.Label>Category</Form.Label>
               <Select
-                value={options.find(
-                  (option) => option.value === formData.category
+                name="category"
+                defaultValue={categories.filter(
+                  (category) => category._id === selectedCategory
                 )}
-                onChange={handleCategoryChange}
-                options={options}
+                onChange={(selectedOption) => handleCat(selectedOption)}
+                options={categories.map((category) => ({
+                  value: category._id,
+                  label: category.name,
+                }))}
               />
               {validationErrors.category && (
                 <div style={{ color: "red", marginTop: "5px" }}>
                   {validationErrors.category}
                 </div>
               )}
-            </Form.Group> */}
+            </Form.Group>
             <Form.Group controlId="formId">
               <Form.Label>Price</Form.Label>
               <Form.Control
@@ -282,12 +297,17 @@ function CreateButton() {
               <Form.Control
                 type="file"
                 placeholder="Enter Title"
-                name="iamge"
+                name="Images"
                 onChange={handleFileUpload}
+                multiple
               />
               {imagePreview && (
                 <div style={{ marginTop: "10px" }}>
-                  <img className="image" src={imagePreview} alt="Image Preview" />
+                  <img
+                    className="image"
+                    src={imagePreview}
+                    alt="Image Preview"
+                  />
                 </div>
               )}
               {validationErrors.images && (
