@@ -31,7 +31,7 @@ import AdminLayout from "layouts/Admin.js";
 
 
 const root = createRoot(document.getElementById("root"));
- const token = false;
+ const token = true;
 
 root.render(
 

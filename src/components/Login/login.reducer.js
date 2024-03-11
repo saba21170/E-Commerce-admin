@@ -11,4 +11,5 @@ const adminReducer = (state = {}, action) => {
       return state;
   }
 };
+
 export default adminReducer

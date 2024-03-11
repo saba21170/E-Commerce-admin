@@ -19,12 +19,26 @@ export const createProduct = (addData) => {
   };
 };
 
-export const getAllProducts = (page) => {
+export const getAllProducts = (page, title, featured, category) => {
+  
   return async (dispatch) => {
+    let url =   `${ENV.baseURL}products/getAllProducts?page=${page}`;
+    if(title && featured && category){
+      url += `&title=${title}&featured=${featured}&category=${category}`;
+
+    }else if(title){
+      url += `&title=${title}`;
+      }
+      else if(featured){
+        url += `&featured=${featured}`;
+
+      }else{
+        url += `&category=${category}`;
+      }
+     
     try {
-      const response = await fetch(
-        `${ENV.baseURL}products/getAllProducts?page=${page}`
-      );
+      const response = await fetch(url);
+
       const data = await response.json();
       dispatch({
         type: GET_ALL_PRODUCTS,
@@ -37,7 +51,7 @@ export const getAllProducts = (page) => {
 };
 
 export const updateProduct = (update, id) =>{
-  //console.log(update ,"product id from")
+ 
   return async (dispatch) =>{
     try{
       console.log(`${ENV.baseURL}products/update/${id}`, "URL")

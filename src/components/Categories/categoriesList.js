@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import CreateButton from "./createCategory";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllCategory } from "./category.action";
-import { ENV } from "../../config/config";
 import Pagination from "rc-pagination";
 import { FaEye, FaTrash, FaEdit } from "react-icons/fa";
 import DeleteButton from "./deleteCategory";
@@ -14,7 +13,6 @@ import {
   Container,
   Row,
   Col,
-  Modal,
   Button,
   Form,
 } from "react-bootstrap";
@@ -46,13 +44,6 @@ function CategoriesList() {
 
   const { list } = useSelector((state) => state.category);
 
-  const handleImageClick = (image) => {
-    setSelectedImage(image);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedImage(null);
-  };
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -70,17 +61,6 @@ function CategoriesList() {
     dispatch(getAllCategory(currentPage, nameFilter, statusFilter));
   };
 
-  // Filter categories based on name and status
-  // console.log(categoriesList,"categorieeessssssssssssssssssssss")
-  //  const filteredCategories = categoriesList && categoriesList.length > 0 ? (
-  //   categoriesList.filter((category) => {
-  //     //console.log(category , "we are categories")
-  //     return (
-  //       category.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
-  //       (statusFilter === "" || category.status.toString() === statusFilter)
-  //     );
-  //   })
-  // ) : "";
 
   return (
     <>
