@@ -1,8 +1,9 @@
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import {loginAdmin} from "./login.action"
+import { useDispatch, useSelector } from "react-redux";
+import { loginAdmin } from "./login.action";
+import { validateForm } from "./validation";
 import "./login.css";
 
 function Login() {
@@ -10,34 +11,39 @@ function Login() {
     email: "",
     password: "",
   });
-const resetForm = () =>{
-  setData({
-    email: "",
-    password: "",
-  })
-}
+  const [validationErrors, setValidationErrors] = useState({});
+  const resetForm = () => {
+    setData({
+      email: "",
+      password: "",
+    });
+  };
+
   const dispatch = useDispatch();
-
-
-
-  //console.log(data, "from kkkkkkk");
+  const message = useSelector((state) => state.failCategory.message);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: undefined,
+    }));
   };
 
-  const handleSubmit = (e) =>{
+  const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(loginAdmin(data));
-    resetForm();
+    const error = validateForm(data);
+    setValidationErrors(error);
 
-    console.log(data,"i am data inside the submit")
-  }
-
-
+    if (!Object.values(error).some((err) => err)) {
+      dispatch(loginAdmin(data));
+      resetForm();
+    }
+  };
   return (
     <div className="form-container">
       <Form className="form">
@@ -50,6 +56,12 @@ const resetForm = () =>{
             onChange={handleInputChange}
             value={data.email}
           />
+
+          {validationErrors?.email && (
+            <div style={{ color: "red", marginTop: "5px" }}>
+              {validationErrors.email}
+            </div>
+          )}
         </Form.Group>
         <Form.Group className="mb-3" controlId="formBasicPassword">
           <Form.Label className="form-label">Password</Form.Label>
@@ -60,13 +72,29 @@ const resetForm = () =>{
             onChange={handleInputChange}
             value={data.password}
           />
+
+          {message?.emailError ? (
+            <div style={{ color: "red", marginTop: "5px" }}>
+              {message.emailError}
+            </div>
+          ) : (
+            <div style={{ color: "red", marginTop: "5px" }}>
+              {message?.passwordError}
+            </div>
+          )}
+
+          {validationErrors?.password && (
+            <div style={{ color: "red", marginTop: "5px" }}>
+              {validationErrors?.password}
+            </div>
+          )}
         </Form.Group>
 
-        <Button 
-        className="submit-button"
-        variant="primary" 
-        type="submit"
-        onClick={handleSubmit}
+        <Button
+          className="submit-button"
+          variant="primary"
+          type="submit"
+          onClick={handleSubmit}
         >
           Submit
         </Button>
@@ -74,5 +102,6 @@ const resetForm = () =>{
     </div>
   );
 }
+
 
 export default Login;
