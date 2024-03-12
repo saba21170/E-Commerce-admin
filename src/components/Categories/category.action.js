@@ -56,7 +56,7 @@ export const createCategory = (modalBody) => {
       } else {
         // Dispatch failedCategory action
         dispatch(failedCategory(data));
-        console.log("error case");
+        
       }
     } catch (error) {
       console.error(error, "ERROR");
@@ -67,7 +67,7 @@ export const createCategory = (modalBody) => {
 export const updateCategory = (update, categoryId) => {
   return async (dispatch) => {
     try {
-      const response = await fetch(`${ENV.baseURL}categories/category/${categoryId}`, {
+      const response = await fetch(`${ENV.baseURL}categories/update/${categoryId}`, {
         method: "PUT",
         body: update,
       });
@@ -85,13 +85,12 @@ export const deleteCategory = (categoryId) => {
   return async (dispatch) => {
     try {
       const response = await fetch(
-        `${ENV.baseURL}categories/deleteCategory/${categoryId}`,
+        `${ENV.baseURL}categories/delete/${categoryId}`,
         {
           method: "PUT",
         }
       );
       const data = await response.json();
-      console.log(data, "dsdksdksd");
       dispatch({
         type: DELETE_CATEGORY,
         payload: data,

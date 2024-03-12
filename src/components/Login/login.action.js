@@ -7,7 +7,7 @@ export const loginAdmin = (credentials) => {
     dispatch(clearError());
     
     try {
-      const response = await fetch(`${ENV.baseURL}admin/login`, {
+      const response = await fetch(`${ENV.baseURL}auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
