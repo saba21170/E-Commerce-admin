@@ -4,7 +4,7 @@ import { ADD_PRODUCT, GET_ALL_PRODUCTS,UPDATE_PRODUCT,DELETE_PRODUCT} from "../.
 export const createProduct = (addData) => {
   return async (dispatch) => {
     try {
-      const response = await fetch(`${ENV.baseURL}products/addProduct`, {
+      const response = await fetch(`${ENV.baseURL}products/add`, {
         method: "POST",
         body: addData,
       });
@@ -23,7 +23,7 @@ export const getAllProducts = (page) => {
   return async (dispatch) => {
     try {
       const response = await fetch(
-        `${ENV.baseURL}products/getAllProducts?page=${page}`
+        `${ENV.baseURL}products/list?page=${page}`
       );
       const data = await response.json();
       dispatch({
@@ -37,16 +37,13 @@ export const getAllProducts = (page) => {
 };
 
 export const updateProduct = (update, id) =>{
-  //console.log(update ,"product id from")
   return async (dispatch) =>{
     try{
-      console.log(`${ENV.baseURL}products/update/${id}`, "URL")
       const response = await fetch(`${ENV.baseURL}products/update/${id}`, {
         method: "PUT",
         body: update,
       });
       const data = await response.json();
-      console.log(data, "update product reducer")
       dispatch({
         type:UPDATE_PRODUCT,
         payload:data,
@@ -61,8 +58,6 @@ export const updateProduct = (update, id) =>{
 
 
 export const deleteProduct = (id) => {
-
-  console.log(id , "deleted product id")
   return async (dispatch) => {
     try {
       const response = await fetch(

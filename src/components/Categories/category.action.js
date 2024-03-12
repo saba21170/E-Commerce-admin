@@ -9,10 +9,10 @@ import { failedCategory, clearError } from "../../redux/reduxError/failed.action
 export const getAllCategory = (page, name, status) => {
 
   return async (dispatch) => {
-    let url = `${ENV.baseURL}categories/listCategories?page=${page}`;
+    let url = `${ENV.baseURL}categories/list?page=${page}`;
 
    if (!page) {
-      url = `${ENV.baseURL}categories/listCategories`;
+      url = `${ENV.baseURL}categories/list`;
      }
 
     else if (name && status) {
@@ -40,7 +40,7 @@ export const createCategory = (modalBody) => {
   return async (dispatch) => {
     dispatch(clearError());
     try {
-      const response = await fetch(`${ENV.baseURL}categories/addCategory`, {
+      const response = await fetch(`${ENV.baseURL}categories/add`, {
         method: "POST",
         // headers: {
         //   'Content-Type': "application/json"
@@ -56,7 +56,7 @@ export const createCategory = (modalBody) => {
       } else {
         // Dispatch failedCategory action
         dispatch(failedCategory(data));
-        console.log("error case");
+        
       }
     } catch (error) {
       console.error(error, "ERROR");
@@ -85,13 +85,12 @@ export const deleteCategory = (categoryId) => {
   return async (dispatch) => {
     try {
       const response = await fetch(
-        `${ENV.baseURL}categories/deleteCategory/${categoryId}`,
+        `${ENV.baseURL}categories/delete/${categoryId}`,
         {
           method: "PUT",
         }
       );
       const data = await response.json();
-      console.log(data, "dsdksdksd");
       dispatch({
         type: DELETE_CATEGORY,
         payload: data,
