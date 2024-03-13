@@ -2,11 +2,12 @@ var CryptoJS = require("crypto-js");
 
 export const ENV = {
     baseURL: process.env.REACT_APP_BASE_URL ,
+    secret_key: process.env.REACT_APP_API_KEY,
     imageURL:process.env.REACT_APP_BASE_URL_image,
-
+    
     encryptAdmin: (data) =>{
-        let encryptedData = CryptoJS.AES.encrypt(data, 'secret key 123').toString();
-        
+
+        let encryptedData = CryptoJS.AES.encrypt(data, ENV.secret_key).toString();
           localStorage.setItem('encryptedData', encryptedData);
     },
     clearLocalStorage: () =>{

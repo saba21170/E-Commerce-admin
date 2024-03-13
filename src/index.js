@@ -28,10 +28,7 @@ import { Provider, useSelector } from "react-redux";
 import Login from "./components/Login/login"
 import store from "./redux/store";
 import AdminLayout from "layouts/Admin.js";
-
-
 const root = createRoot(document.getElementById("root"));
-
 root.render(
 
   <Provider store={store}>
@@ -41,13 +38,6 @@ root.render(
       <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
       <Redirect from="/" to="/login" />
     </Switch>
-      {/* <Switch>
-        <Route path="/admin">
-          {token ? <AdminLayout/> : <Redirect to="/login" />}
-        </Route>
-        <Route path="/login" component={Login}/>
-        <Redirect from="/" to={token ? "/admin/dashboard": "/login"} />
-      </Switch> */}
     </BrowserRouter>
   </Provider>
 );

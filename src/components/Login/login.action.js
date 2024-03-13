@@ -15,9 +15,7 @@ export const loginAdmin = (credentials) => {
         body: JSON.stringify(credentials),
       });
       const data = await response.json();
-      console.log(data, "login data")
-      
-
+  
       if (data.status) {
         ENV.encryptAdmin(JSON.stringify(data)); 
         dispatch({
@@ -27,7 +25,6 @@ export const loginAdmin = (credentials) => {
       } else {
        
         dispatch(failedCategory(data));
-        console.log("error case");
       }
     } catch (error) {
       console.error(error);

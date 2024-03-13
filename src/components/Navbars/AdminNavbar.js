@@ -18,8 +18,8 @@
 import React, { Component } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
-import {ENV} from "../../config/config"
-
+import {ENV} from "../../config/config";
+import { useHistory } from "react-router-dom";
 import routes from "routes.js";
 
 function Header() {
@@ -45,11 +45,14 @@ function Header() {
     return "Brand";
   };
 
-  const handleLogout = (e) =>{
+  const history = useHistory();
+  const handleLogout = (e) => {
     e.preventDefault();
     ENV.clearLocalStorage();
+    history.push("/login");
 
-  };
+};
+
   return (
     <Navbar bg="light" expand="lg">
       <Container fluid>
