@@ -18,6 +18,7 @@
 import React, { Component } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
+import {ENV} from "../../config/config"
 
 import routes from "routes.js";
 
@@ -42,6 +43,12 @@ function Header() {
       }
     }
     return "Brand";
+  };
+
+  const handleLogout = (e) =>{
+    e.preventDefault();
+    ENV.clearLocalStorage();
+
   };
   return (
     <Navbar bg="light" expand="lg">
@@ -141,7 +148,7 @@ function Header() {
               <Nav.Link
                 className="m-0"
                 href="#pablo"
-                onClick={(e) => e.preventDefault()}
+                onClick={handleLogout}
               >
                 <span className="no-icon">Account</span>
               </Nav.Link>
@@ -196,7 +203,7 @@ function Header() {
               <Nav.Link
                 className="m-0"
                 href="#pablo"
-                onClick={(e) => e.preventDefault()}
+                onClick={handleLogout}
               >
                 <span className="no-icon">Log out</span>
               </Nav.Link>
