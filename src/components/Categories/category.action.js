@@ -36,7 +36,6 @@ export const getAllCategory = (page, name, status) => {
 };
 
 export const createCategory = (modalBody) => {
-
   return async (dispatch) => {
     dispatch(clearError());
     try {
