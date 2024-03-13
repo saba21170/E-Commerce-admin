@@ -10,6 +10,13 @@ export const ENV = {
         let encryptedData = CryptoJS.AES.encrypt(data, ENV.secret_key).toString();
           localStorage.setItem('encryptedData', encryptedData);
     },
+    decryptAdmin: () =>{
+      let encryptData = localStorage.getItem('encryptedData');
+      let decryptedData  = CryptoJS.AES.decrypt(encryptData, ENV.secret_key);
+      let originalText = decryptedData.toString(CryptoJS.enc.Utf8);
+     
+
+    },
     clearLocalStorage: () =>{
       localStorage.clear();
       console.log("local storage clear successfully");
