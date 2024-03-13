@@ -2,7 +2,7 @@ var CryptoJS = require("crypto-js");
 
 export const ENV = {
     baseURL: process.env.REACT_APP_BASE_URL ,
-    secret_key: process.env.REACT_APP_API_KEY,
+    secret_key: process.env.REACT_APP_CRYPTO_KEY,
     imageURL:process.env.REACT_APP_BASE_URL_image,
     
     encryptAdmin: (data) =>{

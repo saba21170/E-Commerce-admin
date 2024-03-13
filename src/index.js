@@ -34,9 +34,16 @@ root.render(
   <Provider store={store}>
     <BrowserRouter>
     <Switch>
-    <Route path="/login" component={Login}/>
-      <Route path="/admin" render={(props) => <AdminLayout {...props} />} />
-      <Redirect from="/" to="/login" />
+    <Route path="/login" render={()=>{
+      const isAuthenticated = localStorage.getItem("encryptedData")
+      return isAuthenticated ? <Redirect to="/admin/dashboard"/> : <Login/>
+    }}/>
+    
+    <Route path="/admin" render={(props) => {
+      const isAuthenticated = localStorage.getItem("encryptedData")
+      return isAuthenticated ? <AdminLayout {...props} /> : <Redirect to="/login"/>
+
+       }} />
     </Switch>
     </BrowserRouter>
   </Provider>
