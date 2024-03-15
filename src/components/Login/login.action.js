@@ -7,16 +7,18 @@ export const loginAdmin = (credentials) => {
     dispatch(clearError());
     
     try {
-      const response = await fetch(`${ENV.baseURL}admin/login`, {
+      const response = await fetch(`${ENV.baseURL}auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+
         },
         body: JSON.stringify(credentials),
       });
       const data = await response.json();
-
+  
       if (data.status) {
+        ENV.encryptAdmin(JSON.stringify(data)); 
         dispatch({
           type: LOGIN_ADMIN,
           payload: data,
@@ -24,7 +26,6 @@ export const loginAdmin = (credentials) => {
       } else {
        
         dispatch(failedCategory(data));
-        console.log("error case");
       }
     } catch (error) {
       console.error(error);

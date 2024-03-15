@@ -1,9 +1,10 @@
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginAdmin } from "./login.action";
 import { validateForm } from "./validation";
+import { useHistory } from "react-router-dom";
 import "./login.css";
 
 function Login() {
@@ -12,6 +13,7 @@ function Login() {
     password: "",
   });
   const [validationErrors, setValidationErrors] = useState({});
+
   const resetForm = () => {
     setData({
       email: "",
@@ -20,7 +22,16 @@ function Login() {
   };
 
   const dispatch = useDispatch();
+  const history = useHistory();
   const message = useSelector((state) => state.failCategory.message);
+  const {login} = useSelector((state) => state.adminLogin);
+  
+  useEffect(() => {
+    if (login?.status) {
+       history.push("/admin/dashboard");
+    }
+  }, [login]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setData((prevData) => ({
@@ -102,6 +113,5 @@ function Login() {
     </div>
   );
 }
-
 
 export default Login;
