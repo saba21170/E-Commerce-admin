@@ -5,17 +5,17 @@ import {
   UPDATE_CATEGORY,
   DELETE_CATEGORY,
 } from "../../redux/types";
-import { failedCategory, clearError } from "../../redux/reduxError/failed.action";
+import {
+  failedCategory,
+  clearError,
+} from "../../redux/reduxError/failed.action";
 export const getAllCategory = (page, name, status) => {
-
   return async (dispatch) => {
     let url = `${ENV.baseURL}categories/list?page=${page}`;
 
-   if (!page) {
+    if (!page) {
       url = `${ENV.baseURL}categories/list`;
-     }
-
-    else if (name && status) {
+    } else if (name && status) {
       url += `&name=${name}&status=${status}`;
     } else if (name) {
       url += `&name=${name}`;
@@ -23,7 +23,12 @@ export const getAllCategory = (page, name, status) => {
       url += `&status=${status}`;
     }
     try {
-      const response = await fetch(url);
+      const token = ENV.decryptAdmin();
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const json = await response.json();
       dispatch({
         type: GET_ALL_CATEGORY,
@@ -39,11 +44,12 @@ export const createCategory = (modalBody) => {
   return async (dispatch) => {
     dispatch(clearError());
     try {
+      const token = ENV.decryptAdmin();
       const response = await fetch(`${ENV.baseURL}categories/add`, {
         method: "POST",
-        // headers: {
-        //   'Content-Type': "application/json"
-        // },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: modalBody,
       });
       const data = await response.json();
@@ -53,9 +59,7 @@ export const createCategory = (modalBody) => {
           payload: data,
         });
       } else {
-        // Dispatch failedCategory action
         dispatch(failedCategory(data));
-        
       }
     } catch (error) {
       console.error(error, "ERROR");
@@ -66,11 +70,20 @@ export const createCategory = (modalBody) => {
 export const updateCategory = (update, categoryId) => {
   return async (dispatch) => {
     try {
-      const response = await fetch(`${ENV.baseURL}categories/update/${categoryId}`, {
-        method: "PUT",
-        body: update,
-      });
+      const token = ENV.decryptAdmin();
+      const response = await fetch(
+        `${ENV.baseURL}categories/update/${categoryId}`,
+        {
+          method: "PUT",
+          body: update,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
       const data = await response.json();
+     
       dispatch({
         type: UPDATE_CATEGORY,
         payload: data,
@@ -83,10 +96,14 @@ export const updateCategory = (update, categoryId) => {
 export const deleteCategory = (categoryId) => {
   return async (dispatch) => {
     try {
+      const token = ENV.decryptAdmin();
       const response = await fetch(
         `${ENV.baseURL}categories/delete/${categoryId}`,
         {
           method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       const data = await response.json();
