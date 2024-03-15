@@ -29,6 +29,8 @@ import Login from "./components/Login/login"
 import store from "./redux/store";
 import AdminLayout from "layouts/Admin.js";
 const root = createRoot(document.getElementById("root"));
+
+
 root.render(
 
   <Provider store={store}>

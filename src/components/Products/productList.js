@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "./products.action";
 import { getAllCategory } from "../Categories/category.action";
 import { FaEye, FaTrash, FaEdit } from "react-icons/fa";
+import Select from "react-select";
 
 // react-bootstrap components
 import {
@@ -18,6 +19,7 @@ import {
   Navbar,
   Nav,
   Table,
+  Form,
   Container,
   Row,
   Col,
@@ -30,10 +32,11 @@ function TableList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [modelType, setModelType] = useState(1);
   const [show, setShow] = useState(false);
-  const [categoriesList, setCategoriesList] = useState([]);
-  //const [totalPages, setTotalPages] = useState(1);
+  const [categoriesList, setCategoriesList] = useState("");
+  const [titleFilter, setTitleFilter] = useState("");
+  const [featuredFilter, setfeaturedFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState();
 
-  // State for storing input values
   const [formData, setFormData] = useState({
     id: "",
     title: "",
@@ -48,8 +51,13 @@ function TableList() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    getAllProducts(currentPage);
+    dispatch(
+      getAllProducts()
+    );
+  
   }, []);
+
+  console.log("categoriesList:", categoriesList);
 
   useEffect(() => {
     dispatch(getAllProducts(currentPage));
@@ -68,7 +76,6 @@ function TableList() {
   }, []);
 
   const category = useSelector((state) => state.category);
-  // console.log(category, "data from parent")
 
   useEffect(() => {
     if (category) {
@@ -79,6 +86,12 @@ function TableList() {
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+  };
+   console.log(categoryFilter,"this is category filter")
+  const handleSearch = () => {
+    dispatch(
+      getAllProducts(currentPage, titleFilter, featuredFilter, categoryFilter)
+    );
   };
 
   return (
@@ -108,6 +121,54 @@ function TableList() {
                     Create
                   </Button>
                 </Card.Title>
+                <div className="search-form">
+                  <Form inline>
+                    <Form.Control
+                      type="text"
+                      placeholder="Search by title"
+                      className="mr-sm-2"
+                      value={titleFilter}
+                      onChange={(e) => setTitleFilter(e.target.value)}
+                    />
+
+                    <Select
+                      className="mr-sm-2"
+                      value={{
+                        label:
+                          featuredFilter === ""
+                            ? "All Featured"
+                            : featuredFilter === "true"
+                            ? "Yes"
+                            : "No",
+                        value: featuredFilter,
+                      }}
+                      onChange={(selectedOption) =>
+                        setfeaturedFilter(selectedOption.value)
+                      }
+                      options={[
+                        { label: "All Featured", value: "" },
+                        { label: "Yes", value: "true" },
+                        { label: "No", value: "false" },
+                      ]}
+                    />
+                    <Select
+                      className="mr-sm-2"
+                      value={categoryFilter ? categoryFilter.value : ""}
+                      onChange={(selectedOption) => setCategoryFilter(selectedOption.value)}
+                      options={[
+                        { label: "All Categories", value: "" },
+                        ...(categoriesList && categoriesList.data
+                          ? categoriesList.data.map((cat) => ({
+                              label: cat.name,
+                              value: cat._id,
+                            }))
+                          : []),
+                      ]}
+                    />
+                    
+                    <Button onClick={handleSearch}>search</Button>
+                  </Form>
+                </div>
               </Card.Header>
               <Card.Body className="table-full-width table-responsive px-0">
                 <Table className="table-hover table-striped">

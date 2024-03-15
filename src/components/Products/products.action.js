@@ -67,6 +67,42 @@ export const updateProduct = (update, id) => {
     } catch (error) {
       console.error(error, "error");
     }
+  }
+}
+
+export const getAllProducts = (page, title, featured, category) => {
+  
+  return async (dispatch) => {
+    let url = `${ENV.baseURL}products/getAllProducts`;
+    if (page) {
+      url += `?page=${page}`;
+    }
+    if (title || featured || category) {
+      url += url.includes('?') ? '&' : '?'; 
+
+      if (title) {
+        url += `title=${title}&`;
+      }
+      if (featured) {
+        url += `featured=${featured}&`;
+      }
+      if (category) {
+        url += `category=${category}&`;
+      }
+      url = url.slice(0, -1);
+    }
+
+    try {
+      const response = await fetch(url);
+
+      const data = await response.json();
+      dispatch({
+        type: GET_ALL_PRODUCTS,
+        payload: data,
+      });
+    } catch (error) {
+      console.error(error, "error");
+    }
   };
 };
 
