@@ -32,12 +32,11 @@ function TableList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [modelType, setModelType] = useState(1);
   const [show, setShow] = useState(false);
-  const [categoriesList, setCategoriesList] = useState([]);
+  const [categoriesList, setCategoriesList] = useState("");
   const [titleFilter, setTitleFilter] = useState("");
   const [featuredFilter, setfeaturedFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState();
 
- 
   const [formData, setFormData] = useState({
     id: "",
     title: "",
@@ -52,8 +51,13 @@ function TableList() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    getAllProducts(currentPage);
+    dispatch(
+      getAllProducts()
+    );
+  
   }, []);
+
+  console.log("categoriesList:", categoriesList);
 
   useEffect(() => {
     dispatch(getAllProducts(currentPage));
@@ -83,9 +87,11 @@ function TableList() {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
-
+   console.log(categoryFilter,"this is category filter")
   const handleSearch = () => {
-    dispatch(getAllProducts(currentPage, titleFilter, featuredFilter));
+    dispatch(
+      getAllProducts(currentPage, titleFilter, featuredFilter, categoryFilter)
+    );
   };
 
   return (
@@ -145,7 +151,21 @@ function TableList() {
                         { label: "No", value: "false" },
                       ]}
                     />
-
+                    <Select
+                      className="mr-sm-2"
+                      value={categoryFilter ? categoryFilter.value : ""}
+                      onChange={(selectedOption) => setCategoryFilter(selectedOption.value)}
+                      options={[
+                        { label: "All Categories", value: "" },
+                        ...(categoriesList && categoriesList.data
+                          ? categoriesList.data.map((cat) => ({
+                              label: cat.name,
+                              value: cat._id,
+                            }))
+                          : []),
+                      ]}
+                    />
+                    
                     <Button onClick={handleSearch}>search</Button>
                   </Form>
                 </div>

@@ -18,38 +18,6 @@ export const createProduct = (addData) => {
     }
   };
 };
-
-export const getAllProducts = (page, title, featured, category) => {
-  
-  return async (dispatch) => {
-    let url =   `${ENV.baseURL}products/getAllProducts?page=${page}`;
-    if(title && featured && category){
-      url += `&title=${title}&featured=${featured}&category=${category}`;
-
-    }else if(title){
-      url += `&title=${title}`;
-      }
-      else if(featured){
-        url += `&featured=${featured}`;
-
-      }else{
-        url += `&category=${category}`;
-      }
-     
-    try {
-      const response = await fetch(url);
-
-      const data = await response.json();
-      dispatch({
-        type: GET_ALL_PRODUCTS,
-        payload: data,
-      });
-    } catch (error) {
-      console.error(error, "error");
-    }
-  };
-};
-
 export const updateProduct = (update, id) =>{
  
   return async (dispatch) =>{
@@ -72,6 +40,41 @@ export const updateProduct = (update, id) =>{
     }
   }
 }
+export const getAllProducts = (page, title, featured, category) => {
+  
+  return async (dispatch) => {
+    let url = `${ENV.baseURL}products/getAllProducts`;
+    if (page) {
+      url += `?page=${page}`;
+    }
+    if (title || featured || category) {
+      url += url.includes('?') ? '&' : '?'; 
+
+      if (title) {
+        url += `title=${title}&`;
+      }
+      if (featured) {
+        url += `featured=${featured}&`;
+      }
+      if (category) {
+        url += `category=${category}&`;
+      }
+      url = url.slice(0, -1);
+    }
+
+    try {
+      const response = await fetch(url);
+
+      const data = await response.json();
+      dispatch({
+        type: GET_ALL_PRODUCTS,
+        payload: data,
+      });
+    } catch (error) {
+      console.error(error, "error");
+    }
+  };
+};
 
 
 export const deleteProduct = (id) => {
