@@ -75,13 +75,15 @@ export const updateCategory = (update, categoryId) => {
         `${ENV.baseURL}categories/update/${categoryId}`,
         {
           method: "PUT",
+          body: update,
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          body: update,
         }
       );
+      
       const data = await response.json();
+     
       dispatch({
         type: UPDATE_CATEGORY,
         payload: data,
