@@ -28,26 +28,6 @@ export const createProduct = (addData) => {
   };
 };
 
-export const getAllProducts = (page) => {
-  return async (dispatch) => {
-    try {
-      const token = ENV.decryptAdmin();
-      const response = await fetch(`${ENV.baseURL}products/list?page=${page}`,{
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
-      });
-      const data = await response.json();
-      dispatch({
-        type: GET_ALL_PRODUCTS,
-        payload: data,
-      });
-    } catch (error) {
-      console.error(error, "error");
-    }
-  };
-};
-
 export const updateProduct = (update, id) => {
   return async (dispatch) => {
     try {
