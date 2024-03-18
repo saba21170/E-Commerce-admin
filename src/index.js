@@ -38,12 +38,12 @@ root.render(
     <Switch>
    
     <Route path="/login" render={()=>{
-      const isAuthenticated = localStorage.getItem("encryptedData")
+      const isAuthenticated = localStorage.getItem("adminToken")
       return isAuthenticated ? <Redirect to="/admin/dashboard"/> : <Login/>
     }}/>
     
     <Route path="/admin" render={(props) => {
-      const isAuthenticated = localStorage.getItem("encryptedData")
+      const isAuthenticated = localStorage.getItem("adminToken")
       return isAuthenticated ? <AdminLayout {...props} /> : <Redirect to="/login"/>
 
        }} />

@@ -23,7 +23,7 @@ export const getAllCategory = (page, name, status) => {
       url += `&status=${status}`;
     }
     try {
-      const token = ENV.decryptAdmin();
+      const token = ENV.getToken();
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -44,7 +44,7 @@ export const createCategory = (modalBody) => {
   return async (dispatch) => {
     dispatch(clearError());
     try {
-      const token = ENV.decryptAdmin();
+      const token = ENV.getToken();
       const response = await fetch(`${ENV.baseURL}categories/add`, {
         method: "POST",
         headers: {
@@ -70,7 +70,7 @@ export const createCategory = (modalBody) => {
 export const updateCategory = (update, categoryId) => {
   return async (dispatch) => {
     try {
-      const token = ENV.decryptAdmin();
+      const token = ENV.getToken();
       const response = await fetch(
         `${ENV.baseURL}categories/update/${categoryId}`,
         {
@@ -96,7 +96,7 @@ export const updateCategory = (update, categoryId) => {
 export const deleteCategory = (categoryId) => {
   return async (dispatch) => {
     try {
-      const token = ENV.decryptAdmin();
+      const token = ENV.getToken();
       const response = await fetch(
         `${ENV.baseURL}categories/delete/${categoryId}`,
         {

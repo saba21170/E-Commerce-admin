@@ -25,6 +25,7 @@ function Login() {
   const history = useHistory();
   const message = useSelector((state) => state.failCategory.message);
   const {login} = useSelector((state) => state.adminLogin);
+  console.log(login,"from login.js")
   
   useEffect(() => {
     if (login?.status) {
