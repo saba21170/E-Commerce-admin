@@ -2,20 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Button, Modal, Form } from "react-bootstrap";
 import Select from "react-select";
 import "./product.css";
-import validator from "validator";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { validateForm } from "./validation";
-import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import {
   createProduct,
   getAllProducts,
   updateProduct,
 } from "./products.action";
 import { getAllCategory } from "../Categories/category.action";
-import { ENV } from "../../config/config";
+
 
 function CreateButton({
   modelType,
@@ -89,7 +87,10 @@ function CreateButton({
     //setImagePreview
     const previews = Array.from(files).map((file) => URL.createObjectURL(file));
     setImagePreview(previews);
+   
   };
+  
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -314,7 +315,7 @@ function CreateButton({
                         <div style={{ marginTop: "10px" }}>
                           <img
                             className="image"
-                            src={`${ENV.imageURL}/${image}`}
+                            src={image}
                             alt="Image"
                           />
                         </div>
