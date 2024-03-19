@@ -6,7 +6,7 @@ export const ENV = {
   imageURL: process.env.REACT_APP_BASE_URL_image,
   getToken: () =>{
     let token = localStorage.getItem('adminToken');
-    return token
+    return JSON.parse(token)
     
   },
   

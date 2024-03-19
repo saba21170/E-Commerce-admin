@@ -12,7 +12,6 @@ import {
   getAllCategory,
   updateCategory,
 } from "../Categories/category.action";
-import { ENV } from "../../config/config";
 
 function CreateButton({
   showModal,
@@ -205,8 +204,6 @@ function CreateButton({
                 />
               </div>
             </Form.Group>
-
-
             {modelType !== 2 && (
               <Form.Group controlId="formId">
                 <Form.Label>Image</Form.Label>
@@ -250,7 +247,7 @@ function CreateButton({
                   ) : (
                     <img
                       className="image"
-                      src={`${ENV.imageURL}/${modalData.image}`}
+                      src={modalData.image}
                       alt="Image"
                     />
                   )}
