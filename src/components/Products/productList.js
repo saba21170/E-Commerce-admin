@@ -57,7 +57,7 @@ function TableList() {
   
   }, []);
 
-  console.log("categoriesList:", categoriesList);
+ 
 
   useEffect(() => {
     dispatch(getAllProducts(currentPage));
@@ -87,7 +87,7 @@ function TableList() {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
-   console.log(categoryFilter,"this is category filter")
+
   const handleSearch = () => {
     dispatch(
       getAllProducts(currentPage, titleFilter, featuredFilter, categoryFilter)
@@ -187,7 +187,7 @@ function TableList() {
                     {products && products
                       ? products.map(
                           (product, index) => (
-                            console.log(product, "product dataaaaaa"),
+                            
                             (
                               <tr key={product._id}>
                                 <td>

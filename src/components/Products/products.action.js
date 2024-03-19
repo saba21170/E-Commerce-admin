@@ -9,7 +9,7 @@ import {
 export const createProduct = (addData) => {
   return async (dispatch) => {
     try {
-      const token = ENV.decryptAdmin();
+      const token = ENV.getToken();
       const response = await fetch(`${ENV.baseURL}products/add`, {
         method: "POST",
         headers: {
@@ -31,7 +31,7 @@ export const createProduct = (addData) => {
 export const updateProduct = (update, id) => {
   return async (dispatch) => {
     try {
-      const token = ENV.decryptAdmin();
+      const token = ENV.getToken();
       const response = await fetch(`${ENV.baseURL}products/update/${id}`, {
         method: "PUT",
         body: update,
@@ -53,7 +53,7 @@ export const updateProduct = (update, id) => {
 export const getAllProducts = (page, title, featured, category) => {
   
   return async (dispatch) => {
-    let url = `${ENV.baseURL}products/getAllProducts`;
+    let url = `${ENV.baseURL}products/list`;
     if (page) {
       url += `?page=${page}`;
     }
@@ -73,7 +73,12 @@ export const getAllProducts = (page, title, featured, category) => {
     }
 
     try {
-      const response = await fetch(url);
+      const token = ENV.getToken();
+      const response = await fetch(url,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const data = await response.json();
       dispatch({
@@ -89,7 +94,7 @@ export const getAllProducts = (page, title, featured, category) => {
 export const deleteProduct = (id) => {
   return async (dispatch) => {
     try {
-      const token = ENV.decryptAdmin();
+      const token = ENV.getToken();
       const response = await fetch(`${ENV.baseURL}products/delete/${id}`, {
         method: "PUT",
         headers: {

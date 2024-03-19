@@ -18,7 +18,8 @@ export const loginAdmin = (credentials) => {
       const data = await response.json();
   
       if (data.status) {
-        ENV.encryptAdmin(JSON.stringify(data)); 
+        const {token, adminData} = data;
+        ENV.encryptAdmin(token,adminData);
         dispatch({
           type: LOGIN_ADMIN,
           payload: data,
