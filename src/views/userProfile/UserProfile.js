@@ -1,4 +1,8 @@
 import React from "react";
+import { UseDispatch,useDispatch,useSelector } from "react-redux";
+import { useEffect } from "react";
+import{getData} from "../../components/Login/login.action"
+import { ENV } from "../../config/config";
 
 // react-bootstrap components
 import {
@@ -14,6 +18,15 @@ import {
 } from "react-bootstrap";
 
 function User() {
+  const adminId = ENV.decryptAdmin();
+  const dispatch = useDispatch();
+  useEffect(() =>{
+    dispatch(getData(adminId))
+  },[])
+
+  const {get} = useSelector((state) => state.adminLogin)
+  
+
   return (
     <>
       <Container fluid>
@@ -28,10 +41,10 @@ function User() {
                   <Row>
                     <Col className="pr-1" md="5">
                       <Form.Group>
-                        <label>Company (disabled)</label>
+                        <label>Company</label>
                         <Form.Control
                           defaultValue="Creative Code Inc."
-                          disabled
+
                           placeholder="Company"
                           type="text"
                         ></Form.Control>
@@ -41,8 +54,8 @@ function User() {
                       <Form.Group>
                         <label>Username</label>
                         <Form.Control
-                          defaultValue="michael23"
-                          placeholder="Username"
+                          defaultValue={get?.data.userName}
+                          placeholder=""
                           type="text"
                         ></Form.Control>
                       </Form.Group>
@@ -53,6 +66,7 @@ function User() {
                           Email address
                         </label>
                         <Form.Control
+                        defaultValue={get?.data.email}
                           placeholder="Email"
                           type="email"
                         ></Form.Control>
@@ -143,6 +157,7 @@ function User() {
                     className="btn-fill pull-right"
                     type="submit"
                     variant="info"
+                    
                   >
                     Update Profile
                   </Button>

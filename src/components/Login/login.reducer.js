@@ -1,4 +1,4 @@
-import { LOGIN_ADMIN } from "../../redux/types";
+import { LOGIN_ADMIN,GET_ADMIN,UPDATE_ADMIN } from "../../redux/types";
 
 const adminReducer = (state = {}, action) => {
   switch (action.type) {
@@ -7,6 +7,16 @@ const adminReducer = (state = {}, action) => {
         ...state,
         login: action.payload,
       };
+      case GET_ADMIN:
+        return {
+          ...state,
+          get: action.payload,
+        };
+        case UPDATE_ADMIN:
+        return {
+          ...state,
+          edit: action.payload,
+        };
     default:
       return state;
   }

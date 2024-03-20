@@ -21,6 +21,9 @@ export const ENV = {
     let decryptedData = CryptoJS.AES.decrypt(encryptData, ENV.secret_key);
     let originalText = decryptedData.toString(CryptoJS.enc.Utf8);
     let decryptedObject = JSON.parse(originalText);
+    //console.log(decryptedObject._id,"from config");
+    return decryptedObject._id
+    
   },
   clearLocalStorage: () => {
     localStorage.clear();

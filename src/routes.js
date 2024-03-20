@@ -18,7 +18,7 @@
 import Dashboard from "views/Dashboard/Dashboard";
 import Product from "./components/Products/productList";
 import Category from "./components/Categories/categoriesList";
-import UserProfile from "./views/UserProfile"
+import UserProfile from "./views/userProfile/UserProfile"
 
 
 const dashboardRoutes = [

@@ -1,5 +1,5 @@
 import { ENV } from "../../config/config";
-import { LOGIN_ADMIN } from "../../redux/types";
+import { LOGIN_ADMIN,GET_ADMIN,UPDATE_ADMIN } from "../../redux/types";
 import { failedCategory, clearError } from "../../redux/reduxError/failed.action";
 
 export const loginAdmin = (credentials) => {
@@ -28,6 +28,53 @@ export const loginAdmin = (credentials) => {
        
         dispatch(failedCategory(data));
       }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};
+
+
+export const getData = (id) => {
+  return async (dispatch) => {
+    try {
+      const token = ENV.getToken();
+      const response = await fetch(`${ENV.baseURL}/auth/get/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      dispatch({
+        type:  GET_ADMIN,
+        payload: data,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};
+export const updateAdmin = (id,formData) => {
+  return async (dispatch) => {
+    try {
+      const token = ENV.getToken();
+      const response = await fetch(`${ENV.baseURL}/auth/get/${id}`, {
+        
+          method: "PUT",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        
+
+      });
+      const data = await response.json();
+
+      dispatch({
+        type:  UPDATE_ADMIN,
+        payload: data,
+      });
     } catch (error) {
       console.error(error);
     }
