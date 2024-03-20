@@ -7,3 +7,4 @@ export const GET_ALL_PRODUCTS = 'GET_ALL_PRODUCTS';
 export const UPDATE_PRODUCT = 'UPDATE_PRODUCT';
 export const DELETE_PRODUCT = 'DELETE_PRODUCT'; 
 export const LOGIN_ADMIN = 'LOGIN_ADMIN';
+export const COUNT_STATS = 'COUNT_STATS';
