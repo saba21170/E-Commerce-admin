@@ -1,31 +1,93 @@
 import React from "react";
-import { UseDispatch,useDispatch,useSelector } from "react-redux";
-import { useEffect } from "react";
-import{getData} from "../../components/Login/login.action"
+import { useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { getData, updateAdmin } from "../../components/Login/login.action";
 import { ENV } from "../../config/config";
 
 // react-bootstrap components
-import {
-  Badge,
-  Button,
-  Card,
-  Form,
-  Navbar,
-  Nav,
-  Container,
-  Row,
-  Col
-} from "react-bootstrap";
+import { Button, Card, Form, Container, Row, Col } from "react-bootstrap";
 
 function User() {
+  const [editData, setEditData] = useState({
+    company: "",
+    username: "",
+    email: "",
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    country: "",
+    postalCode: "",
+    aboutMe: "",
+    profileImage:"",
+    coverImage:""
+  });
   const adminId = ENV.decryptAdmin();
   const dispatch = useDispatch();
-  useEffect(() =>{
-    dispatch(getData(adminId))
-  },[])
+  useEffect(() => {
+    dispatch(getData(adminId));
+  }, []);
 
-  const {get} = useSelector((state) => state.adminLogin)
+  const { get } = useSelector((state) => state.adminLogin);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditData({
+      ...editData,
+      [name]: value,
+    });
+  };
+  const profileImageInputRef = useRef(null);
+  const coverImageInputRef = useRef(null);
+
+  const handleProfileImageClick = () => {
+    profileImageInputRef.current.click();
+  };
+  const handleCoverImageClick = () => {
+    coverImageInputRef.current.click();
+  };
+  const handleProfileImageChange = (e) => {
+    const file = e.target.files[0];
+    setEditData({
+      ...editData,
+      profileImage: file,
+    });
+  };
   
+  const handleCoverImageChange = (e) => {
+    const file = e.target.files[0];
+    setEditData((prevData) => ({
+      ...prevData,
+      coverImage: file,
+    }))
+    
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const profileFormData = new FormData();
+
+    profileFormData.append("company", editData.company);
+    profileFormData.append("username", editData.username);
+    profileFormData.append("email", editData.email);
+    profileFormData.append("firstName", editData.firstName);
+    profileFormData.append("lastName", editData.lastName);
+    profileFormData.append("address", editData.address);
+    profileFormData.append("city", editData.city);
+    profileFormData.append("country", editData.country);
+    profileFormData.append("postalCode", editData.postalCode);
+    profileFormData.append("aboutMe", editData.aboutMe);
+    profileFormData.append("profileImage", editData.profileImage);
+    profileFormData.append("coverImage", editData.coverImage);
+    
+    dispatch(updateAdmin(adminId, profileFormData))
+      .then(() => {
+        console.log("upadated successfuly");
+      })
+      .catch(() => console.log("Something went wrong!"));
+  };
 
   return (
     <>
@@ -43,10 +105,11 @@ function User() {
                       <Form.Group>
                         <label>Company</label>
                         <Form.Control
-                          defaultValue="Creative Code Inc."
-
+                          name="company"
+                          value={editData.company}
                           placeholder="Company"
                           type="text"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -54,9 +117,12 @@ function User() {
                       <Form.Group>
                         <label>Username</label>
                         <Form.Control
-                          defaultValue={get?.data.userName}
-                          placeholder=""
+                          //defaultValue={get?.data.userName}
+                          name="username"
+                          value={editData.username}
+                          placeholder="User Name"
                           type="text"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -66,9 +132,12 @@ function User() {
                           Email address
                         </label>
                         <Form.Control
-                        defaultValue={get?.data.email}
+                          defaultValue={get?.data.email}
+                          name="email"
+                          value={editData.email}
                           placeholder="Email"
-                          type="email"
+                          type="text"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -78,9 +147,11 @@ function User() {
                       <Form.Group>
                         <label>First Name</label>
                         <Form.Control
-                          defaultValue="Mike"
-                          placeholder="Company"
+                          name="firstName"
+                          value={editData.firstName}
+                          placeholder="First Name"
                           type="text"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -88,9 +159,11 @@ function User() {
                       <Form.Group>
                         <label>Last Name</label>
                         <Form.Control
-                          defaultValue="Andrew"
+                          name="lastName"
+                          value={editData.lastName}
                           placeholder="Last Name"
                           type="text"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -100,9 +173,11 @@ function User() {
                       <Form.Group>
                         <label>Address</label>
                         <Form.Control
-                          defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
-                          placeholder="Home Address"
+                          name="address"
+                          value={editData.address}
+                          placeholder="Address"
                           type="text"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -112,9 +187,11 @@ function User() {
                       <Form.Group>
                         <label>City</label>
                         <Form.Control
-                          defaultValue="Mike"
+                          name="city"
+                          value={editData.city}
                           placeholder="City"
                           type="text"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -122,9 +199,11 @@ function User() {
                       <Form.Group>
                         <label>Country</label>
                         <Form.Control
-                          defaultValue="Andrew"
+                          name="country"
+                          value={editData.country}
                           placeholder="Country"
                           type="text"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -132,8 +211,11 @@ function User() {
                       <Form.Group>
                         <label>Postal Code</label>
                         <Form.Control
-                          placeholder="ZIP Code"
+                          name="postalCode"
+                          value={editData.postalCode}
+                          placeholder="Postal Code"
                           type="number"
+                          onChange={handleInputChange}
                         ></Form.Control>
                       </Form.Group>
                     </Col>
@@ -144,8 +226,9 @@ function User() {
                         <label>About Me</label>
                         <Form.Control
                           cols="80"
-                          defaultValue="Lamborghini Mercy, Your chick she so thirsty, I'm in
-                          that two seat Lambo."
+                          name="aboutMe"
+                          value={editData.aboutMe}
+                          onChange={handleInputChange}
                           placeholder="Here can be your description"
                           rows="4"
                           as="textarea"
@@ -157,7 +240,7 @@ function User() {
                     className="btn-fill pull-right"
                     type="submit"
                     variant="info"
-                    
+                    onClick={handleSubmit}
                   >
                     Update Profile
                   </Button>
@@ -169,21 +252,40 @@ function User() {
           <Col md="4">
             <Card className="card-user">
               <div className="card-image">
+                {/* cover photo */}
                 <img
                   alt="..."
                   src={require("assets/img/photo-1431578500526-4d9613015464.jpeg")}
+                  onClick={handleCoverImageClick}
                 ></img>
+                <input
+                  type="file"
+                  name="coverImage"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  ref={coverImageInputRef}
+                  onChange={handleCoverImageChange}
+                />
               </div>
               <Card.Body>
                 <div className="author">
-                  <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                    <img
-                      alt="..."
-                      className="avatar border-gray"
-                      src={require("assets/img/faces/face-3.jpg")}
-                    ></img>
-                    <h5 className="title">Mike Andrew</h5>
-                  </a>
+                  {/* profile photo */}
+                  <img
+                    alt="..."
+                    className="avatar border-gray"
+                    src={require("assets/img/faces/face-3.jpg")}
+                    onClick={handleProfileImageClick}
+                  ></img>
+                  <input
+                    type="file"
+                    name= "profileImage"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    ref={profileImageInputRef}
+                    onChange={handleProfileImageChange}
+                  />
+                  <h5 className="title">Mike Andrew</h5>
+
                   <p className="description">michael24</p>
                 </div>
                 <p className="description text-center">
@@ -213,7 +315,7 @@ function User() {
                 <Button
                   className="btn-simple btn-icon"
                   href="#pablo"
-                  onClick={(e) => e.preventDefault()}
+                  // onClick={handleSubmit}
                   variant="link"
                 >
                   <i className="fab fa-google-plus-square"></i>

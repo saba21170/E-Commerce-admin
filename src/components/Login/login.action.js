@@ -39,7 +39,7 @@ export const getData = (id) => {
   return async (dispatch) => {
     try {
       const token = ENV.getToken();
-      const response = await fetch(`${ENV.baseURL}/auth/get/${id}`, {
+      const response = await fetch(`${ENV.baseURL}auth/get/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -59,15 +59,13 @@ export const updateAdmin = (id,formData) => {
   return async (dispatch) => {
     try {
       const token = ENV.getToken();
-      const response = await fetch(`${ENV.baseURL}/auth/get/${id}`, {
+      const response = await fetch(`${ENV.baseURL}auth/edit/${id}`, {
         
           method: "PUT",
           body: formData,
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        
-
       });
       const data = await response.json();
 
