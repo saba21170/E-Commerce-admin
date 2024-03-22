@@ -20,16 +20,23 @@ function User() {
     country: "",
     postalCode: "",
     aboutMe: "",
-    profileImage:"",
-    coverImage:""
+    profileImage: "",
+    coverImage: "",
   });
   const adminId = ENV.decryptAdmin();
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch(getData(adminId));
-  }, []);
+  }, [adminId]);
 
   const { get } = useSelector((state) => state.adminLogin);
+
+  useEffect(() => {
+    if (get) {
+      setEditData(get.data);
+    }
+  }, [get]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -54,14 +61,13 @@ function User() {
       profileImage: file,
     });
   };
-  
+
   const handleCoverImageChange = (e) => {
     const file = e.target.files[0];
     setEditData((prevData) => ({
       ...prevData,
       coverImage: file,
-    }))
-    
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -81,12 +87,14 @@ function User() {
     profileFormData.append("aboutMe", editData.aboutMe);
     profileFormData.append("profileImage", editData.profileImage);
     profileFormData.append("coverImage", editData.coverImage);
-    
-    dispatch(updateAdmin(adminId, profileFormData))
-      .then(() => {
-        console.log("upadated successfuly");
-      })
-      .catch(() => console.log("Something went wrong!"));
+
+    try {
+      const response = await dispatch(updateAdmin(adminId, profileFormData));
+      const updatedUserData = response.data; 
+      setEditData(updatedUserData);
+    } catch (error) {
+      console.error("Error updating user data:", error);
+    }
   };
 
   return (
@@ -255,7 +263,7 @@ function User() {
                 {/* cover photo */}
                 <img
                   alt="..."
-                  src={require("assets/img/photo-1431578500526-4d9613015464.jpeg")}
+                  src={editData.coverImage}
                   onClick={handleCoverImageClick}
                 ></img>
                 <input
@@ -273,12 +281,12 @@ function User() {
                   <img
                     alt="..."
                     className="avatar border-gray"
-                    src={require("assets/img/faces/face-3.jpg")}
+                    src={editData.profileImage}
                     onClick={handleProfileImageClick}
                   ></img>
                   <input
                     type="file"
-                    name= "profileImage"
+                    name="profileImage"
                     accept="image/*"
                     style={{ display: "none" }}
                     ref={profileImageInputRef}

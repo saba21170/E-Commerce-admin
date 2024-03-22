@@ -73,6 +73,7 @@ export const updateAdmin = (id,formData) => {
         type:  UPDATE_ADMIN,
         payload: data,
       });
+      return data;
     } catch (error) {
       console.error(error);
     }
