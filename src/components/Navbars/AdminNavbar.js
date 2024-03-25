@@ -20,6 +20,7 @@ import { useLocation } from "react-router-dom";
 import { Navbar, Container, Nav, Dropdown, Button } from "react-bootstrap";
 import { ENV } from "../../config/config";
 import { useHistory } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import routes from "routes.js";
 
 function Header() {
@@ -92,9 +93,9 @@ function Header() {
           </Nav>
           <Nav className="ml-auto" navbar>
             <Nav.Item>
-              <Nav.Link className="m-0" href="/admin/user">
+              <Link className="nav-link m-0" to="/admin/user">
                 <span className="no-icon">Account</span>
-              </Nav.Link>
+              </Link>
             </Nav.Item>
 
             <Nav.Item>
