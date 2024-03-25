@@ -23,20 +23,23 @@ function User() {
     profileImage: "",
     coverImage: "",
   });
+  const [profilePreview, setProfilePreview] = useState("");
+  const [coverPreview, setCoverPreview] = useState("");
+
   const adminId = ENV.decryptAdmin();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(getData(adminId));
-  }, [adminId]);
+  // useEffect(() => {
+  //   dispatch(getData(adminId));
+  // }, []);
 
-  const { get } = useSelector((state) => state.adminLogin);
-
-  useEffect(() => {
-    if (get) {
-      setEditData(get.data);
-    }
-  }, [get,adminId]);
+  // const { get } = useSelector((state) => state.adminLogin);
+ 
+  // useEffect(() => {
+  //   if (get) {
+  //     setEditData(get.data);
+  //   }
+  // }, [get]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -60,7 +63,10 @@ function User() {
       ...editData,
       profileImage: file,
     });
+   
+    setProfilePreview(file ? URL.createObjectURL(file) : "");
   };
+
 
   const handleCoverImageChange = (e) => {
     const file = e.target.files[0];
@@ -68,6 +74,8 @@ function User() {
       ...prevData,
       coverImage: file,
     }));
+   
+    setCoverPreview(file ? URL.createObjectURL(file) : "");
   };
 
   const handleSubmit = async (e) => {
@@ -91,6 +99,8 @@ function User() {
       const response = await dispatch(updateAdmin(adminId, profileFormData));
       const updatedUserData = response.data; 
       setEditData(updatedUserData);
+      setCoverPreview("");
+      setProfilePreview("")
     } catch (error) {
       console.error("Error updating user data:", error);
     }
@@ -138,7 +148,7 @@ function User() {
                           Email address
                         </label>
                         <Form.Control
-                          defaultValue={get?.data.email}
+                          // defaultValue={get?.data.email}
                           name="email"
                           value={editData?.email}
                           placeholder="Email"
@@ -264,12 +274,20 @@ function User() {
                   src={editData?.coverImage ? editData.coverImage : require("assets/img/photo-1431578500526-4d9613015464.jpeg")}
                   onClick={handleCoverImageClick}
                 ></img>
+                  {coverPreview && editData.coverImage && (
+                  <div style={{ marginTop: "10px" }}>
+                    <img
+                      className="image"
+                      src={coverPreview}
+                      alt="Cover Image Preview"
+                    />
+                  </div>
+                )}
                 <input
                   type="file"
                   name="coverImage"
                   accept="image/*"
                   hidden
-                  style={{ display: "none" }}
                   ref={coverImageInputRef}
                   onChange={handleCoverImageChange}
                 />
@@ -280,10 +298,10 @@ function User() {
                   <img
                     alt="..."
                     className="avatar border-gray"
-                    src={editData?.profileImage ? editData.profileImage : require("assets/img/faces/face-3.jpg")}
+                    src={profilePreview || editData?.profileImage || require("assets/img/faces/face-3.jpg")}
                     onClick={handleProfileImageClick}
                   ></img>
-                  <input
+                   <input
                     type="file"
                     name="profileImage"
                     accept="image/*"
