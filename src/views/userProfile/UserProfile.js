@@ -29,18 +29,18 @@ function User() {
   const adminId = ENV.decryptAdmin();
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   dispatch(getData(adminId));
-  // }, []);
+  useEffect(() => {
+    dispatch(getData(adminId));
+  }, []);
 
-  // const { get } = useSelector((state) => state.adminLogin);
- 
-  // useEffect(() => {
-  //   if (get) {
-  //     setEditData(get.data);
-  //   }
-  // }, [get]);
+   const { get } = useSelector((state) => state.adminLogin);
 
+  useEffect(() => {
+    if (get) {
+      setEditData(get.data);
+    }
+  }, [get]);
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditData({
@@ -271,18 +271,9 @@ function User() {
                 {/* cover photo */}
                 <img
                   alt="..."
-                  src={editData?.coverImage ? editData.coverImage : require("assets/img/photo-1431578500526-4d9613015464.jpeg")}
+                  src={coverPreview || editData?.coverImage || require("assets/img/photo-1431578500526-4d9613015464.jpeg")}
                   onClick={handleCoverImageClick}
                 ></img>
-                  {coverPreview && editData.coverImage && (
-                  <div style={{ marginTop: "10px" }}>
-                    <img
-                      className="image"
-                      src={coverPreview}
-                      alt="Cover Image Preview"
-                    />
-                  </div>
-                )}
                 <input
                   type="file"
                   name="coverImage"
