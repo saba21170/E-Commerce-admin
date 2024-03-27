@@ -28,6 +28,8 @@ import { Provider, useSelector } from "react-redux";
 import Login from "./components/Login/login"
 import store from "./redux/store";
 import AdminLayout from "layouts/Admin.js";
+import ForgotPassword from "./components/Login/forgotPassword";
+import ResetPassword from "./components/Login/resetPassword";
 const root = createRoot(document.getElementById("root"));
 
 
@@ -47,6 +49,8 @@ root.render(
       return isAuthenticated ? <AdminLayout {...props} /> : <Redirect to="/login"/>
 
        }} />
+        <Route path="/forget-password" component={ForgotPassword} /> 
+        <Route path="/reset-password/:adminId/:token" component={ResetPassword} /> 
         <Redirect from="/" to="/login" />
     </Switch>
     </BrowserRouter>

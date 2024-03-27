@@ -10,3 +10,5 @@ export const LOGIN_ADMIN = 'LOGIN_ADMIN';
 export const COUNT_STATS = 'COUNT_STATS';
 export const GET_ADMIN = 'GET_ADMIN';
 export const UPDATE_ADMIN = 'UPDATE_ADMIN';
+export const PASSWORD_RESET_EMAIL = 'PASSWORD_RESET_EMAIL';
+export const RESET_PASSWORD = 'RESET_PASSWORD';
