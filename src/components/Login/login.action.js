@@ -97,8 +97,10 @@ export const passwordResetRequest = (email) => {
           type: PASSWORD_RESET_EMAIL,
           payload: data,
         });
-      } else {
-      }
+        return data;
+
+      } 
+     
     } catch (error) {
       console.error(error);
     }
@@ -121,8 +123,9 @@ export const resetPassword = (newPasswordData) => {
           type: RESET_PASSWORD,
           payload: data,
         });
-      } else {
-      }
+        return data;
+      } 
+      
     } catch (error) {
       console.error(error);
     }

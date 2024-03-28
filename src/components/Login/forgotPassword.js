@@ -3,6 +3,9 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { passwordResetRequest } from "./login.action";
 import { useDispatch } from "react-redux";
+import { toast , ToastContainer} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./login.css";
 
 
 const ForgotPassword = () => {
@@ -12,18 +15,29 @@ const ForgotPassword = () => {
     setEmail(e.target.value);
   };
 const dispatch = useDispatch();
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
 
     e.preventDefault();
-    dispatch(passwordResetRequest(email)); 
+    try {
+      const response = await dispatch(passwordResetRequest(email));
+      const emailResponse = response.status; 
+      
+      if (emailResponse) {
+        toast.success("Password reset email sent successfully!");
+      } else {
+        toast.error("Failed to send password reset email.");
+      }
+    } catch (error) {
+      toast.error("Failed to send password reset email.");
+    }
   };
 
   return (
-    <div>
-      <h2>Forgot Password</h2>
-      <Form >
-        <Form.Group controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
+    <div className="form-container">
+      <Form className="form">
+      <h2 className="title">Forgot Password</h2>
+        <Form.Group className="mb-3" controlId="formBasicEmail" >
+          <Form.Label className="form-label">Email address</Form.Label>
           <Form.Control
             type="email"
             placeholder="Enter email"
@@ -33,12 +47,14 @@ const dispatch = useDispatch();
         </Form.Group>
 
         <Button 
-        variant="primary" 
-        type="submit"
+          className="submit-button"
+          variant="primary"
+          type="submit"
         onClick={handleSubmit}
         >
           Send Email
         </Button>
+        <ToastContainer className="toast-container"/>
       </Form>
     </div>
   );

@@ -6,7 +6,6 @@ import { loginAdmin } from "./login.action";
 import { validateForm } from "./validation";
 import { useHistory } from "react-router-dom";
 import { Link } from "react-router-dom";
-
 import "./login.css";
 
 function Login() {
