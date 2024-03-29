@@ -10,14 +10,22 @@ import "./login.css";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const [validationError, setValidationError] = useState("");
+
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
+    setValidationError("");
   };
 const dispatch = useDispatch();
   const handleSubmit = async(e) => {
 
     e.preventDefault();
+    if (!email) {
+      setValidationError("Email is required.");
+      return;
+    }
+
     try {
       const response = await dispatch(passwordResetRequest(email));
       const emailResponse = response.status; 
@@ -44,6 +52,11 @@ const dispatch = useDispatch();
             value={email}
             onChange={handleEmailChange}
           />
+          {validationError && (
+            <div style={{ color: "red", marginTop: "5px" }}>
+              {validationError}
+            </div>
+          )}
         </Form.Group>
 
         <Button 

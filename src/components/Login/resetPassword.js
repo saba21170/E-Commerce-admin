@@ -13,23 +13,47 @@ const ResetPassword = () => {
   const { adminId, token } = useParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [validationErrors, setValidationErrors] = useState({});
   const history = useHistory();
   const dispatch = useDispatch();
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      password: "",
+    }));
+     
   };
 
   const handleConfirmPasswordChange = (e) => {
     setConfirmPassword(e.target.value);
-    setPasswordsMatch(e.target.value === password);
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      confirmPassword: "",
+    }));
+  };
+
+  const validatePassword = () => {
+    const errors = {};
+    if (!password) {
+      errors.password = "Password field is required.";
+    }
+    if (!confirmPassword) {
+      errors.confirmPassword = "Confirm Password field is required.";
+    }
+    if (password !== confirmPassword) {
+      errors.confirmPassword = "Passwords do not match.";
+     
+    }
+    return errors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setPasswordsMatch(false);
+    const errors = validatePassword();
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
       return;
     }
     const resetData = {
@@ -45,7 +69,7 @@ const ResetPassword = () => {
         toast.success("Password reset successfully!");
         setTimeout(() => {
           history.push("/login");
-        }, 50000);
+        }, 3000);
       } else {
         toast.error("Failed to reset password.");
       }
@@ -66,6 +90,11 @@ const ResetPassword = () => {
             value={password}
             onChange={handlePasswordChange}
           />
+          {validationErrors.password && (
+            <div style={{ color: "red", marginTop: "5px" }}>
+              {validationErrors.password}
+            </div>
+          )}
         </Form.Group>
 
         <Form.Group controlId="formBasicConfirmPassword">
@@ -76,10 +105,10 @@ const ResetPassword = () => {
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
           />
-          {!passwordsMatch && (
-            <Form.Text className="text-danger">
-              Passwords do not match
-            </Form.Text>
+          {validationErrors.confirmPassword && (
+            <div style={{ color: "red", marginTop: "5px" }}>
+              {validationErrors.confirmPassword}
+            </div>
           )}
         </Form.Group>
 
