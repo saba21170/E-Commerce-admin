@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginAdmin } from "./login.action";
 import { validateForm } from "./validation";
 import { useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./login.css";
 
 function Login() {
@@ -25,7 +26,7 @@ function Login() {
   const history = useHistory();
   const message = useSelector((state) => state.failCategory.message);
   const {login} = useSelector((state) => state.adminLogin);
-  console.log(login,"from login.js")
+ 
   
   useEffect(() => {
     if (login?.status) {
@@ -100,6 +101,9 @@ function Login() {
               {validationErrors?.password}
             </div>
           )}
+          <Link to="/forget-password" className="forgot-password-link">
+            Forgot Password?
+          </Link>
         </Form.Group>
 
         <Button

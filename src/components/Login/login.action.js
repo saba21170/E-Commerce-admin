@@ -1,5 +1,5 @@
 import { ENV } from "../../config/config";
-import { LOGIN_ADMIN,GET_ADMIN,UPDATE_ADMIN } from "../../redux/types";
+import { LOGIN_ADMIN,GET_ADMIN,UPDATE_ADMIN,PASSWORD_RESET_EMAIL,RESET_PASSWORD } from "../../redux/types";
 import { failedCategory, clearError } from "../../redux/reduxError/failed.action";
 
 export const loginAdmin = (credentials) => {
@@ -79,3 +79,56 @@ export const updateAdmin = (id,formData) => {
     }
   };
 };
+
+export const passwordResetRequest = (email) => {
+  return async (dispatch) => {
+    try {
+      const response = await fetch(`${ENV.baseURL}auth/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }), 
+      });
+      const data = await response.json();
+  
+      if (data.status) {
+        dispatch({
+          type: PASSWORD_RESET_EMAIL,
+          payload: data,
+        });
+        return data;
+
+      } 
+     
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};
+export const resetPassword = (newPasswordData) => {
+  return async (dispatch) => {
+    try {
+      const response = await fetch(`${ENV.baseURL}auth/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify( newPasswordData ),
+      });
+      const data = await response.json();
+    
+      if (data.status) {
+        dispatch({
+          type: RESET_PASSWORD,
+          payload: data,
+        });
+        return data;
+      } 
+      
+    } catch (error) {
+      console.error(error);
+    }
+  };
+};
+
